@@ -1,0 +1,15 @@
+#!/bin/bash
+INSTALL_PREFIX=$1
+mkdir -p $INSTALL_PREFIX/lib
+mkdir -p $INSTALL_PREFIX/include/kinesis-video-producer
+cp -rn $INSTALL_PREFIX/kinesis-video-producer/src/*.h $INSTALL_PREFIX/include/kinesis-video-producer
+cp -rn $INSTALL_PREFIX/kinesis-video-producer/opensource/jsoncpp/json  $INSTALL_PREFIX/include
+cp -rn $INSTALL_PREFIX/kinesis-video-native-build/downloads/local/include/log4cplus $INSTALL_PREFIX/include
+cp -rn $INSTALL_PREFIX/kinesis-video-pic/src/client/include/* $INSTALL_PREFIX/include
+cp -rn $INSTALL_PREFIX/kinesis-video-pic/src/common/include/* $INSTALL_PREFIX/include
+cp -rn $INSTALL_PREFIX/kinesis-video-pic/src/utils/include/* $INSTALL_PREFIX/include
+cp -rn $INSTALL_PREFIX/kinesis-video-pic/src/mkvgen/include/* $INSTALL_PREFIX/include
+cp -rn $INSTALL_PREFIX/kinesis-video-pic/src/view/include/* $INSTALL_PREFIX/include
+cp -rn $INSTALL_PREFIX/kinesis-video-pic/src/heap/include/* $INSTALL_PREFIX/include
+cp -n $INSTALL_PREFIX/kinesis-video-native-build/downloads/local/lib/libproducer* $INSTALL_PREFIX/lib
+cp -n $INSTALL_PREFIX/kinesis-video-native-build/downloads/local/lib/liblog4cplus* $INSTALL_PREFIX/lib
