@@ -12,6 +12,7 @@
 
 
   <buildtool_depend>cmake</buildtool_depend>
+  <buildtool_depend>pkg-config</buildtool_depend>
 
   <depend>aws_common</depend>
   <depend>curl</depend>
