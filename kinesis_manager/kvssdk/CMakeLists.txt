@@ -19,10 +19,12 @@ ExternalProject_Add(KVS_SDK_IMPORT
   URL https://github.com/awslabs/amazon-kinesis-video-streams-producer-sdk-cpp/archive/${KVSSDK_VERSION}.tar.gz
   URL_MD5 ${KVSSDK_MD5}
   BINARY_DIR ${EXTERNAL_INSTALL_LOCATION}/kinesis-video-native-build
-  PATCH_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/apply-kvs-patch ${EXTERNAL_INSTALL_LOCATION}/kinesis-video-native-build
+  PATCH_COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/apply-kvs-patch ${CMAKE_CURRENT_SOURCE_DIR}/install-kvs ${EXTERNAL_INSTALL_LOCATION}
+      && chmod +x ${EXTERNAL_INSTALL_LOCATION}/apply-kvs-patch ${EXTERNAL_INSTALL_LOCATION}/install-kvs
+      && ${EXTERNAL_INSTALL_LOCATION}/apply-kvs-patch ${EXTERNAL_INSTALL_LOCATION}/kinesis-video-native-build
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ${EXTERNAL_INSTALL_LOCATION}/kinesis-video-native-build/min-install-script
-  INSTALL_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/install-kvs ${EXTERNAL_INSTALL_LOCATION}
+  INSTALL_COMMAND ${EXTERNAL_INSTALL_LOCATION}/install-kvs ${EXTERNAL_INSTALL_LOCATION}
 )
 
 #############
