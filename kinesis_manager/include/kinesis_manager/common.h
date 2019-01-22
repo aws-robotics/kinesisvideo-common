@@ -81,7 +81,7 @@ const struct
   const char * rekognition_topic_name;
   const char * rekognition_data_stream;
 } kStreamParameters{
-  "kinesis_video/",
+  "kinesis_video",
   "stream_count",
   "stream",
   "subscription_topic",

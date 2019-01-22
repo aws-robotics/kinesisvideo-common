@@ -40,24 +40,22 @@ namespace Kinesis {
  * global parameter path, rather than one that's related to a specific stream. This is appropriate
  * for parameters such as "stream_count".
  */
-inline std::string GetStreamParameterPath(int stream_idx, const char * parameter_name)
+inline std::vector<std::string> GetStreamParameterPath(int stream_idx, const char * parameter_name)
 {
-  std::stringstream stream_parameter_prefix;
-  stream_parameter_prefix << std::string(kStreamParameters.prefix);
-  if (INVALID_STREAM_ID != stream_idx) {
-    stream_parameter_prefix << std::string(kStreamParameters.stream_namespace)
-                            << std::to_string(stream_idx) << "/";
-  }
+  std::vector<std::string> path;
+  path.push_back(kStreamParameters.prefix);
+  path.push_back(kStreamParameters.stream_namespace);
   if (nullptr != parameter_name) {
-    stream_parameter_prefix << std::string(parameter_name);
+    path.push_back(std::string(parameter_name));
   }
-  return stream_parameter_prefix.str();
+  return path;
 }
+
 /**
  * Use to retrieve the prefix path for a given stream, i.e. "kinesis_video/stream5/" for
  * stream_idx=5
  */
-inline std::string GetStreamParameterPrefix(int stream_idx)
+inline std::vector<std::string> GetStreamParameterPrefix(int stream_idx)
 {
   return GetStreamParameterPath(stream_idx, nullptr);
 }
@@ -65,7 +63,7 @@ inline std::string GetStreamParameterPrefix(int stream_idx)
  * Use for parameters which live under the global kinesis_video/ namespace rather than under a
  * particular stream (e.g. stream_count).
  */
-inline std::string GetKinesisVideoParameter(const char * parameter_name)
+inline std::vector<std::string> GetKinesisVideoParameter(const char * parameter_name)
 {
   return GetStreamParameterPath(INVALID_STREAM_ID, parameter_name);
 }
