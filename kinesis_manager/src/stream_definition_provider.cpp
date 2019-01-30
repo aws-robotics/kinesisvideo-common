@@ -19,19 +19,13 @@
 #define STREAM_DEFINITION_MAX_CODEC_PRIVATE_DATA_SIZE (1024)
 
 using namespace com::amazonaws::kinesis::video;
-using PathVector = std::vector<std::string>;
+
 
 namespace Aws {
 namespace Kinesis {
 
-static PathVector Combine(const PathVector & prefix, const char * parameter_name) {
-    PathVector result(prefix);
-    result.push_back(std::string(parameter_name));
-    return result;
-}
-
 KinesisManagerStatus StreamDefinitionProvider::GetCodecPrivateData(
-  const PathVector & prefix, const ParameterReaderInterface & reader,
+  const ParameterPath & prefix, const ParameterReaderInterface & reader,
   PBYTE * out_codec_private_data, uint32_t * out_codec_private_data_size) const
 {
   if (nullptr == out_codec_private_data ||
@@ -39,7 +33,7 @@ KinesisManagerStatus StreamDefinitionProvider::GetCodecPrivateData(
     return KINESIS_MANAGER_STATUS_INVALID_INPUT;
   }
   std::string b64_encoded_codec_private_data;
-  reader.ReadStdString(Combine(prefix, "codecPrivateData"), b64_encoded_codec_private_data);
+  reader.ReadStdString(prefix + "codecPrivateData", b64_encoded_codec_private_data);
   if (!b64_encoded_codec_private_data.empty()) {
     uint8_t temp_codec_data[STREAM_DEFINITION_MAX_CODEC_PRIVATE_DATA_SIZE] = {0};
     uint32_t decoded_buffer_size = sizeof(temp_codec_data);
@@ -60,7 +54,7 @@ KinesisManagerStatus StreamDefinitionProvider::GetCodecPrivateData(
 }
 
 unique_ptr<StreamDefinition> StreamDefinitionProvider::GetStreamDefinition(
-    const PathVector & prefix, const ParameterReaderInterface & reader,
+    const ParameterPath & prefix, const ParameterReaderInterface & reader,
     const PBYTE codec_private_data, uint32_t codec_private_data_size) const
 {
   if (nullptr == codec_private_data && 0 != codec_private_data_size) {
@@ -68,77 +62,77 @@ unique_ptr<StreamDefinition> StreamDefinitionProvider::GetStreamDefinition(
   }
 
   std::string stream_name = "default";
-  reader.ReadStdString(Combine(prefix, "stream_name"), stream_name);
+  reader.ReadStdString(prefix + "stream_name", stream_name);
 
   map<string, string> tags;
-  reader.ReadMap(Combine(prefix, "tags"), tags);
+  reader.ReadMap(prefix + "tags", tags);
 
   int retention_period = 2;
-  reader.ReadInt(Combine(prefix, "retention_period"), retention_period);
+  reader.ReadInt(prefix + "retention_period", retention_period);
 
   std::string kms_key_id;
-  reader.ReadStdString(Combine(prefix, "kms_key_id"), kms_key_id);
+  reader.ReadStdString(prefix + "kms_key_id", kms_key_id);
 
   int streaming_type_id = 0;
-  reader.ReadInt(Combine(prefix, "streaming_type"), streaming_type_id);
+  reader.ReadInt(prefix + "streaming_type", streaming_type_id);
   STREAMING_TYPE streaming_type = static_cast<STREAMING_TYPE>(streaming_type_id);
 
   std::string content_type = "video/h264";
-  reader.ReadStdString(Combine(prefix, "content_type"), content_type);
+  reader.ReadStdString(prefix + "content_type", content_type);
 
 
   int max_latency = 0;
-  reader.ReadInt(Combine(prefix, "max_latency"), max_latency);
+  reader.ReadInt(prefix + "max_latency", max_latency);
 
   int fragment_duration = 2;
-  reader.ReadInt(Combine(prefix, "fragment_duration"), fragment_duration);
+  reader.ReadInt(prefix + "fragment_duration", fragment_duration);
 
   int timecode_scale = 1;
-  reader.ReadInt(Combine(prefix, "timecode_scale"), timecode_scale);
+  reader.ReadInt(prefix + "timecode_scale", timecode_scale);
 
   bool key_frame_fragmentation = true;
-  reader.ReadBool(Combine(prefix, "key_frame_fragmentation"), key_frame_fragmentation);
+  reader.ReadBool(prefix + "key_frame_fragmentation", key_frame_fragmentation);
 
   bool frame_timecodes = true;
-  reader.ReadBool(Combine(prefix, "frame_timecodes"), frame_timecodes);
+  reader.ReadBool(prefix + "frame_timecodes", frame_timecodes);
 
   bool absolute_fragment_time = true;
-  reader.ReadBool(Combine(prefix, "absolute_fragment_time"), absolute_fragment_time);
+  reader.ReadBool(prefix + "absolute_fragment_time", absolute_fragment_time);
 
   bool fragment_acks = true;
-  reader.ReadBool(Combine(prefix, "fragment_acks"), fragment_acks);
+  reader.ReadBool(prefix + "fragment_acks", fragment_acks);
 
   bool restart_on_error = true;
-  reader.ReadBool(Combine(prefix, "restart_on_error"), restart_on_error);
+  reader.ReadBool(prefix + "restart_on_error", restart_on_error);
 
   bool recalculate_metrics = true;
-  reader.ReadBool(Combine(prefix, "recalculate_metrics"), recalculate_metrics);
+  reader.ReadBool(prefix + "recalculate_metrics", recalculate_metrics);
 
   int nal_adaptation_flag_id = NAL_ADAPTATION_ANNEXB_NALS | NAL_ADAPTATION_ANNEXB_CPD_NALS;
-  reader.ReadInt(Combine(prefix, "nal_adaptation_flags"), nal_adaptation_flag_id);
+  reader.ReadInt(prefix + "nal_adaptation_flags", nal_adaptation_flag_id);
   NAL_ADAPTATION_FLAGS nal_adaptation_flags =
     static_cast<NAL_ADAPTATION_FLAGS>(nal_adaptation_flag_id);
 
   int frame_rate = 24;
-  reader.ReadInt(Combine(prefix, "frame_rate"), frame_rate);
+  reader.ReadInt(prefix + "frame_rate", frame_rate);
 
   int avg_bandwidth_bps = 4 * 1024 * 1024;
-  reader.ReadInt(Combine(prefix, "avg_bandwidth_bps"), avg_bandwidth_bps);
+  reader.ReadInt(prefix + "avg_bandwidth_bps", avg_bandwidth_bps);
 
   int buffer_duration = 120;
-  reader.ReadInt(Combine(prefix, "buffer_duration"), buffer_duration);
+  reader.ReadInt(prefix + "buffer_duration", buffer_duration);
 
   int replay_duration = 40;
-  reader.ReadInt(Combine(prefix, "replay_duration"), replay_duration);
+  reader.ReadInt(prefix + "replay_duration", replay_duration);
 
   int connection_staleness = 30;
-  reader.ReadInt(Combine(prefix, "connection_staleness"), connection_staleness);
+  reader.ReadInt(prefix + "connection_staleness", connection_staleness);
 
   std::string codec_id = "V_MPEG4/ISO/AVC";
-  reader.ReadStdString(Combine(prefix, "codec_id"), codec_id);
+  reader.ReadStdString(prefix + "codec_id", codec_id);
 
   std::string track_name = "kinesis_video";
-  reader.ReadStdString(Combine(prefix, "track_name"), track_name);
+  reader.ReadStdString(prefix + "track_name", track_name);
 
 
   auto stream_definition = make_unique<StreamDefinition>(

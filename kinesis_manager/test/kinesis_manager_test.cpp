@@ -36,11 +36,6 @@ using namespace Aws::Kinesis;
 class TestParameterReader : public ParameterReaderInterface
 {
 public:
-  TestParameterReader(map<string, int> int_map, map<string, bool> bool_map,
-                      map<string, string> string_map, map<string, map<string, string>> map_map)
-  : int_map_(int_map), bool_map_(bool_map), string_map_(string_map), map_map_(map_map)
-  {
-  }
   TestParameterReader(string test_prefix)
   {
     int_map_ = {
@@ -76,6 +71,18 @@ public:
       {test_prefix + PARAM_NS_SEPARATOR "tags", {{"someKey", "someValue"}}},
     };
   }
+
+  TestParameterReader(const vector<string> & test_prefix)
+  {
+      TestParameterReader(Join(test_prefix));
+  }
+
+  TestParameterReader(map<string, int> int_map, map<string, bool> bool_map,
+                      map<string, string> string_map, map<string, map<string, string>> map_map)
+  : int_map_(int_map), bool_map_(bool_map), string_map_(string_map), map_map_(map_map)
+  {
+  }
+
   string Join(const vector<string> & test_prefix)
   {
       string expanded;
@@ -87,61 +94,69 @@ public:
       }
       return expanded;
   }
-  TestParameterReader(const vector<string> & test_prefix)
-  {
-      TestParameterReader(Join(test_prefix));
-  }
-  AwsError ReadInt(const ParameterPath & parameter_path, int & out) const
+
+  AwsError ReadInt(const char * name, int & out) const
   {
     AwsError result = AWS_ERR_NOT_FOUND;
-    string name = parameter_path.get_resolved_path(PARAM_NS_SEPARATOR_CHAR, PARAM_NS_SEPARATOR_CHAR);
     if (int_map_.count(name) > 0) {
       out = int_map_.at(name);
       result = AWS_ERR_OK;
     }
     return result;
   }
-  AwsError ReadBool(const ParameterPath & parameter_path, bool & out) const
+
+  AwsError ReadBool(const char * name, bool & out) const
   {
     AwsError result = AWS_ERR_NOT_FOUND;
-    string name = parameter_path.get_resolved_path(PARAM_NS_SEPARATOR_CHAR, PARAM_NS_SEPARATOR_CHAR);
     if (bool_map_.count(name) > 0) {
       out = bool_map_.at(name);
       result = AWS_ERR_OK;
     }
     return result;
   }
-  AwsError ReadStdString(const ParameterPath & parameter_path, string & out) const
+
+  AwsError ReadStdString(const char * name, string & out) const
   {
     AwsError result = AWS_ERR_NOT_FOUND;
-    string name = parameter_path.get_resolved_path(PARAM_NS_SEPARATOR_CHAR, PARAM_NS_SEPARATOR_CHAR);
     if (string_map_.count(name) > 0) {
       out = string_map_.at(name);
       result = AWS_ERR_OK;
     }
     return result;
   }
-  AwsError ReadString(const ParameterPath & parameter_path, Aws::String & out) const { return AWS_ERR_EMPTY; }
-  AwsError ReadMap(const ParameterPath & parameter_path, map<string, string> & out) const
+
+  AwsError ReadString(const char * name, Aws::String & out) const
+  {
+    return AWS_ERR_EMPTY;
+  }
+
+  AwsError ReadMap(const char * name, map<string, string> & out) const
   {
     AwsError result = AWS_ERR_NOT_FOUND;
-    string name = parameter_path.get_resolved_path(PARAM_NS_SEPARATOR_CHAR, PARAM_NS_SEPARATOR_CHAR);
     if (map_map_.count(name) > 0) {
       out = map_map_.at(name);
       result = AWS_ERR_OK;
     }
     return result;
   }
-  AwsError ReadList(const ParameterPath & parameter_path, std::vector<std::string> & out) const
+
+  AwsError ReadList(const char * name, std::vector<std::string> & out) const
   {
     return AWS_ERR_EMPTY;
   }
-  AwsError ReadDouble(const ParameterPath & parameter_path, double & out) const { return AWS_ERR_EMPTY; }
+  
+  AwsError ReadDouble(const char * name, double & out) const { return AWS_ERR_EMPTY; }
 
   map<string, int> int_map_;
   map<string, bool> bool_map_;
   map<string, string> string_map_;
   map<string, map<string, string>> map_map_;
+
+private:
+  string FormatParameterPath(const ParameterPath & param_path) const
+  {
+    return param_path.get_resolved_path(PARAM_NS_SEPARATOR_CHAR, PARAM_NS_SEPARATOR_CHAR);
+  }
 };
 
 /**

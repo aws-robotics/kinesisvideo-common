@@ -34,19 +34,20 @@ namespace Kinesis {
  * Constructs parameter paths for AWS Kinesis applications.
  * @param stream_idx
  * @param parameter_name
- * @return string representing the parameter path, i.e.
+ * @return ParameterPath object representing the parameter path, i.e.
  * kinesis_video/stream<stream_idx>/<parameter_name>
  * @note calling GetStreamParameterPath with negative stream index would result in construction of a
  * global parameter path, rather than one that's related to a specific stream. This is appropriate
  * for parameters such as "stream_count".
  */
-inline std::vector<std::string> GetStreamParameterPath(int stream_idx, const char * parameter_name)
+inline ParameterPath GetStreamParameterPath(int stream_idx, const char * parameter_name)
 {
-  std::vector<std::string> path;
-  path.push_back(kStreamParameters.prefix);
-  path.push_back(kStreamParameters.stream_namespace);
+  ParameterPath path(kStreamParameters.prefix);
+  if (INVALID_STREAM_ID != stream_idx) {
+    path += kStreamParameters.stream_namespace + std::to_string(stream_idx);
+  }
   if (nullptr != parameter_name) {
-    path.push_back(std::string(parameter_name));
+    path += parameter_name;
   }
   return path;
 }
@@ -55,7 +56,7 @@ inline std::vector<std::string> GetStreamParameterPath(int stream_idx, const cha
  * Use to retrieve the prefix path for a given stream, i.e. "kinesis_video/stream5/" for
  * stream_idx=5
  */
-inline std::vector<std::string> GetStreamParameterPrefix(int stream_idx)
+inline ParameterPath GetStreamParameterPrefix(int stream_idx)
 {
   return GetStreamParameterPath(stream_idx, nullptr);
 }
@@ -63,7 +64,7 @@ inline std::vector<std::string> GetStreamParameterPrefix(int stream_idx)
  * Use for parameters which live under the global kinesis_video/ namespace rather than under a
  * particular stream (e.g. stream_count).
  */
-inline std::vector<std::string> GetKinesisVideoParameter(const char * parameter_name)
+inline ParameterPath GetKinesisVideoParameter(const char * parameter_name)
 {
   return GetStreamParameterPath(INVALID_STREAM_ID, parameter_name);
 }
