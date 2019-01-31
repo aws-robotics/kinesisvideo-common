@@ -33,8 +33,7 @@ public:
   ~StreamDefinitionProvider() = default;
   /**
    * Reads a base64-encoded codecPrivateData using the given Parameter Reader.
-   * @param c_prefix a null-terminated string; parameters will be read by prepending this prefix
-   * first.
+   * @param prefix a ParameterPath object representing the path of the parameter's prefix.
    * @param reader implementing ParameterReaderInterface
    * @param out_codec_private_data - newly allocated buffer containing the codec private data.
    *  @note The pointer remains unchanged in case of an error or if no codec data was provided.
@@ -44,7 +43,7 @@ public:
    * @return kinesis_manager_status_t with KINESIS_MANAGER_SUCCESS on success or if no codec data
    * was provided
    */
-  virtual KinesisManagerStatus GetCodecPrivateData(const char * c_prefix,
+  virtual KinesisManagerStatus GetCodecPrivateData(const ParameterPath & prefix,
                                                    const ParameterReaderInterface & reader,
                                                    PBYTE * out_codec_private_data,
                                                    uint32_t * out_codec_private_data_size) const;
@@ -54,14 +53,13 @@ public:
    * @see
    * https://github.com/awslabs/amazon-kinesis-video-streams-producer-sdk-cpp/blob/master/kinesis-video-producer/src/StreamDefinition.h
    *  and https://docs.aws.amazon.com/kinesisvideostreams/latest/dg/how-data.html
-   * @param c_prefix a null-terminated string; parameters will be read by prepending this prefix
-   * first.
+   * @param prefix a ParameterPath object representing the path of the parameter's prefix.
    * @param reader implementing ParameterReaderInterface
    * @param codec_private_data the picture and sequence parameter sets of the stream (optional).
    * @param codec_private_data_size size in bytes of codec_private_data.
    * @return unique_ptr to StreamDefinition on success or nullptr on failure.
    */
-  virtual unique_ptr<StreamDefinition> GetStreamDefinition(const char * prefix,
+  virtual unique_ptr<StreamDefinition> GetStreamDefinition(const ParameterPath & prefix,
                                                            const ParameterReaderInterface & reader,
                                                            const PBYTE codec_private_data,
                                                            uint32_t codec_private_data_size) const;

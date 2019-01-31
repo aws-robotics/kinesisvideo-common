@@ -34,8 +34,7 @@ KinesisManagerStatus KinesisStreamManagerInterface::KinesisVideoStreamSetup(
 {
   KinesisManagerStatus status = KINESIS_MANAGER_STATUS_ERROR_BASE;
   unique_ptr<StreamDefinition> stream_definition = stream_definition_provider_->GetStreamDefinition(
-    GetStreamParameterPrefix(stream_idx).c_str(), *parameter_reader_, codec_private_data,
-    codec_private_data_size);
+    GetStreamParameterPrefix(stream_idx), *parameter_reader_, codec_private_data, codec_private_data_size);
   if (!stream_definition) {
     AWS_LOGSTREAM_ERROR(__func__, "Skipping stream id "
                                     << stream_idx << " due to failure to load stream definition.");
@@ -60,13 +59,13 @@ KinesisManagerStatus KinesisStreamManagerInterface::GenerateStreamSubscriptionDe
   KinesisManagerStatus status = KINESIS_MANAGER_STATUS_SUCCESS;
   int param_status = AWS_ERR_OK;
   param_status |= parameter_reader_->ReadStdString(
-    GetStreamParameterPath(stream_idx, kStreamParameters.topic_name).c_str(),
+    GetStreamParameterPath(stream_idx, kStreamParameters.topic_name),
     descriptor.topic_name);
   param_status |= parameter_reader_->ReadStdString(
-    GetStreamParameterPath(stream_idx, kStreamParameters.stream_name).c_str(),
+    GetStreamParameterPath(stream_idx, kStreamParameters.stream_name),
     descriptor.stream_name);
   param_status |= parameter_reader_->ReadInt(
-    GetStreamParameterPath(stream_idx, kStreamParameters.topic_type).c_str(),
+    GetStreamParameterPath(stream_idx, kStreamParameters.topic_type),
     descriptor.input_type);
   if (AWS_ERR_OK != param_status) {
     AWS_LOGSTREAM_ERROR(__func__, "Missing parameters - can't construct descriptor (topic: "
@@ -77,10 +76,10 @@ KinesisManagerStatus KinesisStreamManagerInterface::GenerateStreamSubscriptionDe
   }
   /* Rekognition data stream and topic name - one cannot be provided without the other */
   AwsError data_stream_read_result = parameter_reader_->ReadStdString(
-    GetStreamParameterPath(stream_idx, kStreamParameters.rekognition_data_stream).c_str(),
+    GetStreamParameterPath(stream_idx, kStreamParameters.rekognition_data_stream),
     descriptor.rekognition_data_stream);
   AwsError rekognition_topic_read_result = parameter_reader_->ReadStdString(
-    GetStreamParameterPath(stream_idx, kStreamParameters.rekognition_topic_name).c_str(),
+    GetStreamParameterPath(stream_idx, kStreamParameters.rekognition_topic_name),
     descriptor.rekognition_topic_name);
   if (data_stream_read_result != rekognition_topic_read_result ||
       (data_stream_read_result != AWS_ERR_OK && data_stream_read_result != AWS_ERR_NOT_FOUND)) {
@@ -95,7 +94,7 @@ KinesisManagerStatus KinesisStreamManagerInterface::GenerateStreamSubscriptionDe
   int message_queue_size_input;
   if (AWS_ERR_OK ==
       parameter_reader_->ReadInt(
-        GetStreamParameterPath(stream_idx, kStreamParameters.message_queue_size).c_str(),
+        GetStreamParameterPath(stream_idx, kStreamParameters.message_queue_size),
         message_queue_size_input)) {
     if (0 > message_queue_size_input) {
       AWS_LOGSTREAM_WARN(__func__, descriptor.stream_name << " Message queue size provided ("
@@ -114,7 +113,7 @@ KinesisManagerStatus KinesisStreamManagerInterface::KinesisVideoStreamerSetup()
 {
   KinesisManagerStatus status = KINESIS_MANAGER_STATUS_ERROR_BASE;
   int video_stream_count = 0;
-  parameter_reader_->ReadInt(GetKinesisVideoParameter(kStreamParameters.stream_count).c_str(),
+  parameter_reader_->ReadInt(GetKinesisVideoParameter(kStreamParameters.stream_count),
                              video_stream_count);
   if (0 >= video_stream_count) {
     AWS_LOGSTREAM_WARN(__func__, "Stream count " << video_stream_count << " is invalid. Aborting");
@@ -124,7 +123,7 @@ KinesisManagerStatus KinesisStreamManagerInterface::KinesisVideoStreamerSetup()
     PBYTE codec_private_data = nullptr;
     uint32_t codec_private_data_size = 0;
     KinesisManagerStatus get_codec_private_data_result =
-      stream_definition_provider_->GetCodecPrivateData(GetStreamParameterPrefix(stream_idx).c_str(),
+      stream_definition_provider_->GetCodecPrivateData(GetStreamParameterPrefix(stream_idx),
                                                        *parameter_reader_, &codec_private_data,
                                                        &codec_private_data_size);
     if (KINESIS_MANAGER_STATUS_FAILED(get_codec_private_data_result)) {
@@ -311,12 +310,12 @@ KinesisManagerStatus KinesisStreamManager::ProcessCodecPrivateDataForStream(
   /* Get stream configuration ID */
   int video_stream_count = 0, stream_idx = 0;
   KinesisManagerStatus status = KINESIS_MANAGER_STATUS_PROCESS_CODEC_DATA_STREAM_CONFIG_NOT_FOUND;
-  parameter_reader_->ReadInt(GetKinesisVideoParameter(kStreamParameters.stream_count).c_str(),
+  parameter_reader_->ReadInt(GetKinesisVideoParameter(kStreamParameters.stream_count),
                              video_stream_count);
   for (int stream_idx = 0; stream_idx < video_stream_count; stream_idx++) {
     std::string configured_stream_name;
     parameter_reader_->ReadStdString(
-      GetStreamParameterPath(stream_idx, kStreamParameters.stream_name).c_str(),
+      GetStreamParameterPath(stream_idx, kStreamParameters.stream_name),
       configured_stream_name);
     if (configured_stream_name == stream_name) {
       status = KINESIS_MANAGER_STATUS_SUCCESS;
@@ -335,7 +334,7 @@ KinesisManagerStatus KinesisStreamManager::ProcessCodecPrivateDataForStream(
      * unsubscribe */
     std::string topic_name;
     parameter_reader_->ReadStdString(
-      GetStreamParameterPath(stream_idx, kStreamParameters.topic_name).c_str(), topic_name);
+      GetStreamParameterPath(stream_idx, kStreamParameters.topic_name), topic_name);
     AWS_LOGSTREAM_ERROR(__func__, "KinesisVideoStreamSetup failed, uninstalling subscriptions to "
                                     << topic_name << " Error code: " << status);
     subscription_installer_->Uninstall(topic_name);

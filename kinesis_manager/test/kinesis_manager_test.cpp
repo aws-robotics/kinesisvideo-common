@@ -23,6 +23,9 @@
 
 LOGGER_TAG("aws.kinesis.kinesis_manager_unittest");
 
+#define PARAM_NS_SEPARATOR "/"
+#define PARAM_NS_SEPARATOR_CHAR '/'
+
 using namespace std;
 using namespace Aws;
 using namespace Aws::Kinesis;
@@ -33,41 +36,65 @@ using namespace Aws::Kinesis;
 class TestParameterReader : public ParameterReaderInterface
 {
 public:
+  TestParameterReader(string test_prefix)
+  {
+    int_map_ = {
+      {test_prefix + PARAM_NS_SEPARATOR "retention_period", 2},
+      {test_prefix + PARAM_NS_SEPARATOR "streaming_type", 0},
+      {test_prefix + PARAM_NS_SEPARATOR "max_latency", 0},
+      {test_prefix + PARAM_NS_SEPARATOR "fragment_duration", 2},
+      {test_prefix + PARAM_NS_SEPARATOR "timecode_scale", 1},
+      {test_prefix + PARAM_NS_SEPARATOR "nal_adaptation_flags",
+       NAL_ADAPTATION_ANNEXB_NALS | NAL_ADAPTATION_ANNEXB_CPD_NALS},
+      {test_prefix + PARAM_NS_SEPARATOR"frame_rate", 24},
+      {test_prefix + PARAM_NS_SEPARATOR "avg_bandwidth_bps", 4 * 1024 * 1024},
+      {test_prefix + PARAM_NS_SEPARATOR "buffer_duration", 120},
+      {test_prefix + PARAM_NS_SEPARATOR "replay_duration", 40},
+      {test_prefix + PARAM_NS_SEPARATOR "connection_staleness", 30},
+    };
+    bool_map_ = {
+      {test_prefix + PARAM_NS_SEPARATOR "key_frame_fragmentation", true},
+      {test_prefix + PARAM_NS_SEPARATOR "frame_timecodes", true},
+      {test_prefix + PARAM_NS_SEPARATOR "absolute_fragment_time", true},
+      {test_prefix + PARAM_NS_SEPARATOR "fragment_acks", true},
+      {test_prefix + PARAM_NS_SEPARATOR "restart_on_error", true},
+      {test_prefix + PARAM_NS_SEPARATOR "recalculate_metrics", true},
+    };
+    string_map_ = {
+      {test_prefix + PARAM_NS_SEPARATOR "stream_name", "testStream"},
+      {test_prefix + PARAM_NS_SEPARATOR "kms_key_id", ""},
+      {test_prefix + PARAM_NS_SEPARATOR "content_type", "video/h264"},
+      {test_prefix + PARAM_NS_SEPARATOR "codec_id", "V_MPEG4/ISO/AVC"},
+      {test_prefix + PARAM_NS_SEPARATOR "track_name", "kinesis_video"},
+    };
+    map_map_ = {
+      {test_prefix + PARAM_NS_SEPARATOR "tags", {{"someKey", "someValue"}}},
+    };
+  }
+
+  TestParameterReader(const vector<string> & test_prefix)
+  {
+      TestParameterReader(Join(test_prefix));
+  }
+
   TestParameterReader(map<string, int> int_map, map<string, bool> bool_map,
                       map<string, string> string_map, map<string, map<string, string>> map_map)
   : int_map_(int_map), bool_map_(bool_map), string_map_(string_map), map_map_(map_map)
   {
   }
-  TestParameterReader(string test_prefix)
+
+  string Join(const vector<string> & test_prefix)
   {
-    int_map_ = {
-      {test_prefix + "retention_period", 2},
-      {test_prefix + "streaming_type", 0},
-      {test_prefix + "max_latency", 0},
-      {test_prefix + "fragment_duration", 2},
-      {test_prefix + "timecode_scale", 1},
-      {test_prefix + "nal_adaptation_flags",
-       NAL_ADAPTATION_ANNEXB_NALS | NAL_ADAPTATION_ANNEXB_CPD_NALS},
-      {test_prefix + "frame_rate", 24},
-      {test_prefix + "avg_bandwidth_bps", 4 * 1024 * 1024},
-      {test_prefix + "buffer_duration", 120},
-      {test_prefix + "replay_duration", 40},
-      {test_prefix + "connection_staleness", 30},
-    };
-    bool_map_ = {
-      {test_prefix + "key_frame_fragmentation", true}, {test_prefix + "frame_timecodes", true},
-      {test_prefix + "absolute_fragment_time", true},  {test_prefix + "fragment_acks", true},
-      {test_prefix + "restart_on_error", true},        {test_prefix + "recalculate_metrics", true},
-    };
-    string_map_ = {
-      {test_prefix + "stream_name", "testStream"},   {test_prefix + "kms_key_id", ""},
-      {test_prefix + "content_type", "video/h264"},  {test_prefix + "codec_id", "V_MPEG4/ISO/AVC"},
-      {test_prefix + "track_name", "kinesis_video"},
-    };
-    map_map_ = {
-      {test_prefix + "tags", {{"someKey", "someValue"}}},
-    };
+      string expanded;
+      for (auto item = test_prefix.begin(); item != test_prefix.end(); item++) {
+          expanded += *item + PARAM_NS_SEPARATOR;
+      }
+      if (!expanded.empty() && expanded.back() == PARAM_NS_SEPARATOR_CHAR) {
+          expanded.pop_back();
+      }
+      return expanded;
   }
+
   AwsError ReadInt(const char * name, int & out) const
   {
     AwsError result = AWS_ERR_NOT_FOUND;
@@ -77,6 +104,7 @@ public:
     }
     return result;
   }
+
   AwsError ReadBool(const char * name, bool & out) const
   {
     AwsError result = AWS_ERR_NOT_FOUND;
@@ -86,6 +114,7 @@ public:
     }
     return result;
   }
+
   AwsError ReadStdString(const char * name, string & out) const
   {
     AwsError result = AWS_ERR_NOT_FOUND;
@@ -95,7 +124,12 @@ public:
     }
     return result;
   }
-  AwsError ReadString(const char * name, Aws::String & out) const { return AWS_ERR_EMPTY; }
+
+  AwsError ReadString(const char * name, Aws::String & out) const
+  {
+    return AWS_ERR_EMPTY;
+  }
+
   AwsError ReadMap(const char * name, map<string, string> & out) const
   {
     AwsError result = AWS_ERR_NOT_FOUND;
@@ -105,16 +139,24 @@ public:
     }
     return result;
   }
+
   AwsError ReadList(const char * name, std::vector<std::string> & out) const
   {
     return AWS_ERR_EMPTY;
   }
+  
   AwsError ReadDouble(const char * name, double & out) const { return AWS_ERR_EMPTY; }
 
   map<string, int> int_map_;
   map<string, bool> bool_map_;
   map<string, string> string_map_;
   map<string, map<string, string>> map_map_;
+
+private:
+  string FormatParameterPath(const ParameterPath & param_path) const
+  {
+    return param_path.get_resolved_path(PARAM_NS_SEPARATOR_CHAR, PARAM_NS_SEPARATOR_CHAR);
+  }
 };
 
 /**
@@ -168,6 +210,7 @@ static bool are_streams_equivalent(unique_ptr<StreamDefinition> stream1,
 TEST(StreamDefinitionProviderSuite, getCodecPrivateDataTest)
 {
   string test_prefix = "some/test/prefix";
+  vector<string> test_prefix_list{"some", "test", "prefix"};
   Aws::Kinesis::StreamDefinitionProvider stream_definition_provider;
 
   string decoded_string = "hello world";
@@ -177,28 +220,24 @@ TEST(StreamDefinitionProviderSuite, getCodecPrivateDataTest)
   map<string, string> tags;
   map<string, map<string, string>> map_map = {};
   map<string, string> string_map = {
-    {test_prefix + "codecPrivateData", encoded_string},
+    {test_prefix + PARAM_NS_SEPARATOR "codecPrivateData", encoded_string},
   };
   TestParameterReader parameter_reader(int_map, bool_map, string_map, map_map);
 
   PBYTE codec_private_data;
   uint32_t codec_private_data_size;
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_SUCCEEDED(stream_definition_provider.GetCodecPrivateData(
-    test_prefix.c_str(), parameter_reader, &codec_private_data, &codec_private_data_size)));
+    test_prefix_list, parameter_reader, &codec_private_data, &codec_private_data_size)));
   ASSERT_EQ(decoded_string.length(), codec_private_data_size);
   ASSERT_TRUE(0 == strncmp(decoded_string.c_str(), (const char *)codec_private_data,
                            codec_private_data_size));
 
   /* Invalid input tests */
-  KinesisManagerStatus status = stream_definition_provider.GetCodecPrivateData(
-    nullptr, parameter_reader, &codec_private_data, &codec_private_data_size);
-  ASSERT_TRUE(KINESIS_MANAGER_STATUS_FAILED(status) &&
-              KINESIS_MANAGER_STATUS_INVALID_INPUT == status);
-  status = stream_definition_provider.GetCodecPrivateData(test_prefix.c_str(), parameter_reader,
+  KinesisManagerStatus status = stream_definition_provider.GetCodecPrivateData(test_prefix_list, parameter_reader,
                                                           nullptr, &codec_private_data_size);
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_FAILED(status) &&
               KINESIS_MANAGER_STATUS_INVALID_INPUT == status);
-  status = stream_definition_provider.GetCodecPrivateData(test_prefix.c_str(), parameter_reader,
+  status = stream_definition_provider.GetCodecPrivateData(test_prefix_list, parameter_reader,
                                                           &codec_private_data, nullptr);
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_FAILED(status) &&
               KINESIS_MANAGER_STATUS_INVALID_INPUT == status);
@@ -208,17 +247,17 @@ TEST(StreamDefinitionProviderSuite, getCodecPrivateDataTest)
   TestParameterReader empty_parameter_reader(int_map, bool_map, string_map, map_map);
   codec_private_data = nullptr;
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_SUCCEEDED(stream_definition_provider.GetCodecPrivateData(
-                test_prefix.c_str(), empty_parameter_reader, &codec_private_data,
+                test_prefix_list, empty_parameter_reader, &codec_private_data,
                 &codec_private_data_size)) &&
               !codec_private_data);
 
   /* Dependency failure */
   string_map = {
-    {test_prefix + "codecPrivateData", "1"},
+    {test_prefix + PARAM_NS_SEPARATOR "codecPrivateData", "1"},
   };
   TestParameterReader parameter_reader_with_invalid_values(int_map, bool_map, string_map, map_map);
   status = stream_definition_provider.GetCodecPrivateData(
-    test_prefix.c_str(), parameter_reader_with_invalid_values, &codec_private_data,
+    test_prefix_list, parameter_reader_with_invalid_values, &codec_private_data,
     &codec_private_data_size);
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_FAILED(status) &&
               KINESIS_MANAGER_STATUS_BASE64DECODE_FAILED == status);
@@ -231,6 +270,7 @@ TEST(StreamDefinitionProviderSuite, getCodecPrivateDataTest)
 TEST(StreamDefinitionProviderSuite, getStreamDefinitionTest)
 {
   string test_prefix = "some/test/prefix";
+  vector<string> test_prefix_list{"some", "test", "prefix"};
   Aws::Kinesis::StreamDefinitionProvider stream_definition_provider;
 
   TestParameterReader parameter_reader = TestParameterReader(test_prefix);
@@ -240,53 +280,65 @@ TEST(StreamDefinitionProviderSuite, getStreamDefinitionTest)
   map<string, map<string, string>> map_map = parameter_reader.map_map_;
 
   unique_ptr<StreamDefinition> generated_stream_definition =
-    stream_definition_provider.GetStreamDefinition(test_prefix.c_str(), parameter_reader, nullptr,
-                                                   0);
+    stream_definition_provider.GetStreamDefinition(test_prefix_list, parameter_reader, nullptr, 0);
   auto equivalent_stream_definition = make_unique<StreamDefinition>(
-    string_map[test_prefix + "stream_name"], hours(int_map[test_prefix + "retention_period"]),
-    &map_map[test_prefix + "tags"], string_map[test_prefix + "kms_key_id"],
-    static_cast<STREAMING_TYPE>(int_map[test_prefix + "streaming_type"]),
-    string_map[test_prefix + "content_type"], milliseconds(int_map[test_prefix + "max_latency"]),
-    seconds(int_map[test_prefix + "fragment_duration"]),
-    milliseconds(int_map[test_prefix + "timecode_scale"]),
-    bool_map[test_prefix + "key_frame_fragmentation"], bool_map[test_prefix + "frame_timecodes"],
-    bool_map[test_prefix + "absolute_fragment_time"], bool_map[test_prefix + "fragment_acks"],
-    bool_map[test_prefix + "restart_on_error"], bool_map[test_prefix + "recalculate_metrics"],
-    static_cast<NAL_ADAPTATION_FLAGS>(int_map[test_prefix + "nal_adaptation_flags"]),
-    int_map[test_prefix + "frame_rate"], int_map[test_prefix + "avg_bandwidth_bps"],
-    seconds(int_map[test_prefix + "buffer_duration"]),
-    seconds(int_map[test_prefix + "replay_duration"]),
-    seconds(int_map[test_prefix + "connection_staleness"]), string_map[test_prefix + "codec_id"],
-    string_map[test_prefix + "track_name"], nullptr, 0);
+    string_map[test_prefix + PARAM_NS_SEPARATOR "stream_name"],
+    hours(int_map[test_prefix + PARAM_NS_SEPARATOR "retention_period"]),
+    &map_map[test_prefix + PARAM_NS_SEPARATOR "tags"],
+    string_map[test_prefix + PARAM_NS_SEPARATOR "kms_key_id"],
+    static_cast<STREAMING_TYPE>(int_map[test_prefix + PARAM_NS_SEPARATOR "streaming_type"]),
+    string_map[test_prefix + PARAM_NS_SEPARATOR "content_type"],
+    milliseconds(int_map[test_prefix + PARAM_NS_SEPARATOR "max_latency"]),
+    seconds(int_map[test_prefix + PARAM_NS_SEPARATOR "fragment_duration"]),
+    milliseconds(int_map[test_prefix + PARAM_NS_SEPARATOR "timecode_scale"]),
+    bool_map[test_prefix + PARAM_NS_SEPARATOR "key_frame_fragmentation"],
+    bool_map[test_prefix + PARAM_NS_SEPARATOR "frame_timecodes"],
+    bool_map[test_prefix + PARAM_NS_SEPARATOR "absolute_fragment_time"],
+    bool_map[test_prefix + PARAM_NS_SEPARATOR "fragment_acks"],
+    bool_map[test_prefix + PARAM_NS_SEPARATOR "restart_on_error"],
+    bool_map[test_prefix + PARAM_NS_SEPARATOR "recalculate_metrics"],
+    static_cast<NAL_ADAPTATION_FLAGS>(int_map[test_prefix + PARAM_NS_SEPARATOR "nal_adaptation_flags"]),
+    int_map[test_prefix + PARAM_NS_SEPARATOR "frame_rate"],
+    int_map[test_prefix + PARAM_NS_SEPARATOR "avg_bandwidth_bps"],
+    seconds(int_map[test_prefix + PARAM_NS_SEPARATOR "buffer_duration"]),
+    seconds(int_map[test_prefix + PARAM_NS_SEPARATOR "replay_duration"]),
+    seconds(int_map[test_prefix + PARAM_NS_SEPARATOR "connection_staleness"]),
+    string_map[test_prefix + PARAM_NS_SEPARATOR "codec_id"],
+    string_map[test_prefix + PARAM_NS_SEPARATOR "track_name"], nullptr, 0);
   ASSERT_TRUE(
     are_streams_equivalent(move(equivalent_stream_definition), move(generated_stream_definition)));
 
   auto different_stream_definition = make_unique<StreamDefinition>(
-    string_map[test_prefix + "stream_name"], hours(int_map[test_prefix + "retention_period"]),
-    &map_map[test_prefix + "tags"], string_map[test_prefix + "kms_key_id"],
-    static_cast<STREAMING_TYPE>(int_map[test_prefix + "streaming_type"]),
-    string_map[test_prefix + "content_type"], milliseconds(int_map[test_prefix + "max_latency"]),
-    seconds(int_map[test_prefix + "fragment_duration"]),
-    milliseconds(int_map[test_prefix + "timecode_scale"]),
-    bool_map[test_prefix + "key_frame_fragmentation"], bool_map[test_prefix + "frame_timecodes"],
-    bool_map[test_prefix + "absolute_fragment_time"], bool_map[test_prefix + "fragment_acks"],
-    bool_map[test_prefix + "restart_on_error"], bool_map[test_prefix + "recalculate_metrics"],
-    static_cast<NAL_ADAPTATION_FLAGS>(int_map[test_prefix + "nal_adaptation_flags"]), 4914918,
-    int_map[test_prefix + "avg_bandwidth_bps"], seconds(int_map[test_prefix + "buffer_duration"]),
-    seconds(int_map[test_prefix + "replay_duration"]),
-    seconds(int_map[test_prefix + "connection_staleness"]), string_map[test_prefix + "codec_id"],
-    string_map[test_prefix + "track_name"], nullptr, 0);
+    string_map[test_prefix + PARAM_NS_SEPARATOR "stream_name"],
+    hours(int_map[test_prefix + PARAM_NS_SEPARATOR "retention_period"]),
+    &map_map[test_prefix + PARAM_NS_SEPARATOR "tags"],
+    string_map[test_prefix + PARAM_NS_SEPARATOR "kms_key_id"],
+    static_cast<STREAMING_TYPE>(int_map[test_prefix + PARAM_NS_SEPARATOR "streaming_type"]),
+    string_map[test_prefix + PARAM_NS_SEPARATOR "content_type"],
+    milliseconds(int_map[test_prefix + PARAM_NS_SEPARATOR "max_latency"]),
+    seconds(int_map[test_prefix + PARAM_NS_SEPARATOR "fragment_duration"]),
+    milliseconds(int_map[test_prefix + PARAM_NS_SEPARATOR "timecode_scale"]),
+    bool_map[test_prefix + PARAM_NS_SEPARATOR "key_frame_fragmentation"],
+    bool_map[test_prefix + PARAM_NS_SEPARATOR "frame_timecodes"],
+    bool_map[test_prefix + PARAM_NS_SEPARATOR "absolute_fragment_time"],
+    bool_map[test_prefix + PARAM_NS_SEPARATOR "fragment_acks"],
+    bool_map[test_prefix + PARAM_NS_SEPARATOR "restart_on_error"],
+    bool_map[test_prefix + PARAM_NS_SEPARATOR "recalculate_metrics"],
+    static_cast<NAL_ADAPTATION_FLAGS>(int_map[test_prefix + PARAM_NS_SEPARATOR "nal_adaptation_flags"]), 4914918,
+    int_map[test_prefix + PARAM_NS_SEPARATOR "avg_bandwidth_bps"],
+    seconds(int_map[test_prefix + PARAM_NS_SEPARATOR "buffer_duration"]),
+    seconds(int_map[test_prefix + PARAM_NS_SEPARATOR "replay_duration"]),
+    seconds(int_map[test_prefix + PARAM_NS_SEPARATOR "connection_staleness"]),
+    string_map[test_prefix + PARAM_NS_SEPARATOR "codec_id"],
+    string_map[test_prefix + PARAM_NS_SEPARATOR "track_name"], nullptr, 0);
   generated_stream_definition = stream_definition_provider.GetStreamDefinition(
-    test_prefix.c_str(), parameter_reader, nullptr, 0);
+    test_prefix_list, parameter_reader, nullptr, 0);
   ASSERT_FALSE(
     are_streams_equivalent(move(different_stream_definition), move(generated_stream_definition)));
 
   /* Invalid input tests */
-  generated_stream_definition =
-    stream_definition_provider.GetStreamDefinition(nullptr, parameter_reader, nullptr, 0);
-  ASSERT_FALSE(generated_stream_definition);
   generated_stream_definition = stream_definition_provider.GetStreamDefinition(
-    test_prefix.c_str(), parameter_reader, nullptr, 100);
+    test_prefix_list, parameter_reader, nullptr, 100);
   ASSERT_FALSE(generated_stream_definition);
 }
 
@@ -294,7 +346,7 @@ TEST(StreamDefinitionProviderSuite, getStreamDefinitionTest)
  * Initializes the video producer and generates a basic stream definition.
  */
 unique_ptr<StreamDefinition> DefaultProducerSetup(
-  Aws::Kinesis::KinesisStreamManager & stream_manager, string region, string test_prefix)
+  Aws::Kinesis::KinesisStreamManager & stream_manager, string region, const std::vector<std::string> & test_prefix)
 {
 #ifdef PLATFORM_TESTING_ACCESS_KEY
   setenv("AWS_ACCESS_KEY_ID", PLATFORM_TESTING_ACCESS_KEY, 1);
@@ -307,7 +359,7 @@ unique_ptr<StreamDefinition> DefaultProducerSetup(
   Aws::Kinesis::StreamDefinitionProvider stream_definition_provider;
   TestParameterReader parameter_reader = TestParameterReader(test_prefix);
   unique_ptr<StreamDefinition> stream_definition = stream_definition_provider.GetStreamDefinition(
-    test_prefix.c_str(), parameter_reader, nullptr, 0);
+    test_prefix, parameter_reader, nullptr, 0);
   return move(stream_definition);
 }
 

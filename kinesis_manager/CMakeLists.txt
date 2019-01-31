@@ -9,10 +9,12 @@ if(AWSSDK_FOUND)
   AWSSDK_DETERMINE_LIBS_TO_LINK(SERVICE AWSSDK_LIBS_TO_LINK)
   link_directories("${AWSSDK_LIB_DIR}")
 endif()
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/") # Required for FindKVSSDK
 
 find_package(CURL REQUIRED)
-find_package(KVSSDK REQUIRED)
+
+## Add KVS SDK libraries
+include(FindKVSSDK.cmake)
+add_subdirectory(kvssdk)
 
 #############
 ## Library ##
@@ -20,12 +22,7 @@ find_package(KVSSDK REQUIRED)
 ## Declare a C++ library
 add_library(${PROJECT_NAME} SHARED src/stream_definition_provider.cpp src/kinesis_stream_manager.cpp src/default_callbacks.cpp)
 set(${PROJECT_NAME}_IMPORTED_LIBRARIES producer log4cplus)
-
-## Add KVS SDK libraries
-if(NOT KVSSDK_FOUND)
-  add_subdirectory(kvssdk)
-  add_dependencies(${PROJECT_NAME} KVS_SDK_IMPORT)
-endif()
+add_dependencies(${PROJECT_NAME} KVS_SDK_IMPORT)
 
 foreach(_imported_lib ${${PROJECT_NAME}_IMPORTED_LIBRARIES})
   if(NOT TARGET ${_imported_lib})
