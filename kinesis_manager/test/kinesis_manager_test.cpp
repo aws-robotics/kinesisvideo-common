@@ -21,14 +21,17 @@
 #include <kinesis_manager/kinesis_stream_manager.h>
 #include <kinesis_manager/stream_definition_provider.h>
 
+using namespace std;
+using namespace com::amazonaws::kinesis::video;
+using namespace Aws;
+using namespace Aws::Client;
+using namespace Aws::Kinesis;
+
 LOGGER_TAG("aws.kinesis.kinesis_manager_unittest");
 
 #define PARAM_NS_SEPARATOR "/"
 #define PARAM_NS_SEPARATOR_CHAR '/'
 
-using namespace std;
-using namespace Aws;
-using namespace Aws::Kinesis;
 
 /**
  * Parameter reader that sets the output using provided std::mapS.
@@ -95,9 +98,10 @@ public:
       return expanded;
   }
 
-  AwsError ReadInt(const char * name, int & out) const
+  AwsError ReadParam(const ParameterPath & param_path, int & out) const
   {
     AwsError result = AWS_ERR_NOT_FOUND;
+    std::string name = FormatParameterPath(param_path);
     if (int_map_.count(name) > 0) {
       out = int_map_.at(name);
       result = AWS_ERR_OK;
@@ -105,9 +109,10 @@ public:
     return result;
   }
 
-  AwsError ReadBool(const char * name, bool & out) const
+  AwsError ReadParam(const ParameterPath & param_path, bool & out) const
   {
     AwsError result = AWS_ERR_NOT_FOUND;
+    std::string name = FormatParameterPath(param_path);
     if (bool_map_.count(name) > 0) {
       out = bool_map_.at(name);
       result = AWS_ERR_OK;
@@ -115,9 +120,10 @@ public:
     return result;
   }
 
-  AwsError ReadStdString(const char * name, string & out) const
+  AwsError ReadParam(const ParameterPath & param_path, string & out) const
   {
     AwsError result = AWS_ERR_NOT_FOUND;
+    std::string name = FormatParameterPath(param_path);
     if (string_map_.count(name) > 0) {
       out = string_map_.at(name);
       result = AWS_ERR_OK;
@@ -125,14 +131,15 @@ public:
     return result;
   }
 
-  AwsError ReadString(const char * name, Aws::String & out) const
+  AwsError ReadParam(const ParameterPath & param_path, Aws::String & out) const
   {
     return AWS_ERR_EMPTY;
   }
 
-  AwsError ReadMap(const char * name, map<string, string> & out) const
+  AwsError ReadParam(const ParameterPath & param_path, map<string, string> & out) const
   {
     AwsError result = AWS_ERR_NOT_FOUND;
+    std::string name = FormatParameterPath(param_path);
     if (map_map_.count(name) > 0) {
       out = map_map_.at(name);
       result = AWS_ERR_OK;
@@ -140,12 +147,12 @@ public:
     return result;
   }
 
-  AwsError ReadList(const char * name, std::vector<std::string> & out) const
+  AwsError ReadParam(const ParameterPath & param_path, std::vector<std::string> & out) const
   {
     return AWS_ERR_EMPTY;
   }
   
-  AwsError ReadDouble(const char * name, double & out) const { return AWS_ERR_EMPTY; }
+  AwsError ReadParam(const ParameterPath & param_path, double & out) const { return AWS_ERR_EMPTY; }
 
   map<string, int> int_map_;
   map<string, bool> bool_map_;
@@ -227,18 +234,19 @@ TEST(StreamDefinitionProviderSuite, getCodecPrivateDataTest)
   PBYTE codec_private_data;
   uint32_t codec_private_data_size;
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_SUCCEEDED(stream_definition_provider.GetCodecPrivateData(
-    test_prefix_list, parameter_reader, &codec_private_data, &codec_private_data_size)));
+              ParameterPath(test_prefix_list), parameter_reader, &codec_private_data,
+              &codec_private_data_size)));
   ASSERT_EQ(decoded_string.length(), codec_private_data_size);
   ASSERT_TRUE(0 == strncmp(decoded_string.c_str(), (const char *)codec_private_data,
                            codec_private_data_size));
 
   /* Invalid input tests */
-  KinesisManagerStatus status = stream_definition_provider.GetCodecPrivateData(test_prefix_list, parameter_reader,
-                                                          nullptr, &codec_private_data_size);
+  KinesisManagerStatus status = stream_definition_provider.GetCodecPrivateData(
+              ParameterPath(test_prefix_list), parameter_reader, nullptr, &codec_private_data_size);
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_FAILED(status) &&
               KINESIS_MANAGER_STATUS_INVALID_INPUT == status);
-  status = stream_definition_provider.GetCodecPrivateData(test_prefix_list, parameter_reader,
-                                                          &codec_private_data, nullptr);
+  status = stream_definition_provider.GetCodecPrivateData(
+    ParameterPath(test_prefix_list), parameter_reader, &codec_private_data, nullptr);
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_FAILED(status) &&
               KINESIS_MANAGER_STATUS_INVALID_INPUT == status);
 
@@ -247,18 +255,16 @@ TEST(StreamDefinitionProviderSuite, getCodecPrivateDataTest)
   TestParameterReader empty_parameter_reader(int_map, bool_map, string_map, map_map);
   codec_private_data = nullptr;
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_SUCCEEDED(stream_definition_provider.GetCodecPrivateData(
-                test_prefix_list, empty_parameter_reader, &codec_private_data,
-                &codec_private_data_size)) &&
-              !codec_private_data);
+              ParameterPath(test_prefix_list), empty_parameter_reader, &codec_private_data,
+              &codec_private_data_size)) && !codec_private_data);
 
   /* Dependency failure */
   string_map = {
     {test_prefix + PARAM_NS_SEPARATOR "codecPrivateData", "1"},
   };
   TestParameterReader parameter_reader_with_invalid_values(int_map, bool_map, string_map, map_map);
-  status = stream_definition_provider.GetCodecPrivateData(
-    test_prefix_list, parameter_reader_with_invalid_values, &codec_private_data,
-    &codec_private_data_size);
+  status = stream_definition_provider.GetCodecPrivateData(ParameterPath(test_prefix_list),
+            parameter_reader_with_invalid_values, &codec_private_data, &codec_private_data_size);
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_FAILED(status) &&
               KINESIS_MANAGER_STATUS_BASE64DECODE_FAILED == status);
 }
@@ -280,7 +286,8 @@ TEST(StreamDefinitionProviderSuite, getStreamDefinitionTest)
   map<string, map<string, string>> map_map = parameter_reader.map_map_;
 
   unique_ptr<StreamDefinition> generated_stream_definition =
-    stream_definition_provider.GetStreamDefinition(test_prefix_list, parameter_reader, nullptr, 0);
+    stream_definition_provider.GetStreamDefinition(ParameterPath(test_prefix_list),
+                                                   parameter_reader, nullptr, 0);
   auto equivalent_stream_definition = make_unique<StreamDefinition>(
     string_map[test_prefix + PARAM_NS_SEPARATOR "stream_name"],
     hours(int_map[test_prefix + PARAM_NS_SEPARATOR "retention_period"]),
@@ -332,13 +339,13 @@ TEST(StreamDefinitionProviderSuite, getStreamDefinitionTest)
     string_map[test_prefix + PARAM_NS_SEPARATOR "codec_id"],
     string_map[test_prefix + PARAM_NS_SEPARATOR "track_name"], nullptr, 0);
   generated_stream_definition = stream_definition_provider.GetStreamDefinition(
-    test_prefix_list, parameter_reader, nullptr, 0);
+    ParameterPath(test_prefix_list), parameter_reader, nullptr, 0);
   ASSERT_FALSE(
     are_streams_equivalent(move(different_stream_definition), move(generated_stream_definition)));
 
   /* Invalid input tests */
   generated_stream_definition = stream_definition_provider.GetStreamDefinition(
-    test_prefix_list, parameter_reader, nullptr, 100);
+    ParameterPath(test_prefix_list), parameter_reader, nullptr, 100);
   ASSERT_FALSE(generated_stream_definition);
 }
 
@@ -359,7 +366,7 @@ unique_ptr<StreamDefinition> DefaultProducerSetup(
   Aws::Kinesis::StreamDefinitionProvider stream_definition_provider;
   TestParameterReader parameter_reader = TestParameterReader(test_prefix);
   unique_ptr<StreamDefinition> stream_definition = stream_definition_provider.GetStreamDefinition(
-    test_prefix, parameter_reader, nullptr, 0);
+    ParameterPath(test_prefix), parameter_reader, nullptr, 0);
   return move(stream_definition);
 }
 

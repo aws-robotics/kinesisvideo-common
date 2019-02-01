@@ -16,9 +16,11 @@
 #include <com/amazonaws/kinesis/video/utils/Include.h>
 #include <kinesis_manager/stream_definition_provider.h>
 
-#define STREAM_DEFINITION_MAX_CODEC_PRIVATE_DATA_SIZE (1024)
-
 using namespace com::amazonaws::kinesis::video;
+using namespace Aws::Client;
+
+
+#define STREAM_DEFINITION_MAX_CODEC_PRIVATE_DATA_SIZE (1024)
 
 
 namespace Aws {
@@ -33,7 +35,7 @@ KinesisManagerStatus StreamDefinitionProvider::GetCodecPrivateData(
     return KINESIS_MANAGER_STATUS_INVALID_INPUT;
   }
   std::string b64_encoded_codec_private_data;
-  reader.ReadStdString(prefix + "codecPrivateData", b64_encoded_codec_private_data);
+  reader.ReadParam(prefix + "codecPrivateData", b64_encoded_codec_private_data);
   if (!b64_encoded_codec_private_data.empty()) {
     uint8_t temp_codec_data[STREAM_DEFINITION_MAX_CODEC_PRIVATE_DATA_SIZE] = {0};
     uint32_t decoded_buffer_size = sizeof(temp_codec_data);
@@ -62,77 +64,77 @@ unique_ptr<StreamDefinition> StreamDefinitionProvider::GetStreamDefinition(
   }
 
   std::string stream_name = "default";
-  reader.ReadStdString(prefix + "stream_name", stream_name);
+  reader.ReadParam(prefix + "stream_name", stream_name);
 
   map<string, string> tags;
-  reader.ReadMap(prefix + "tags", tags);
+  reader.ReadParam(prefix + "tags", tags);
 
   int retention_period = 2;
-  reader.ReadInt(prefix + "retention_period", retention_period);
+  reader.ReadParam(prefix + "retention_period", retention_period);
 
   std::string kms_key_id;
-  reader.ReadStdString(prefix + "kms_key_id", kms_key_id);
+  reader.ReadParam(prefix + "kms_key_id", kms_key_id);
 
   int streaming_type_id = 0;
-  reader.ReadInt(prefix + "streaming_type", streaming_type_id);
+  reader.ReadParam(prefix + "streaming_type", streaming_type_id);
   STREAMING_TYPE streaming_type = static_cast<STREAMING_TYPE>(streaming_type_id);
 
   std::string content_type = "video/h264";
-  reader.ReadStdString(prefix + "content_type", content_type);
+  reader.ReadParam(prefix + "content_type", content_type);
 
 
   int max_latency = 0;
-  reader.ReadInt(prefix + "max_latency", max_latency);
+  reader.ReadParam(prefix + "max_latency", max_latency);
 
   int fragment_duration = 2;
-  reader.ReadInt(prefix + "fragment_duration", fragment_duration);
+  reader.ReadParam(prefix + "fragment_duration", fragment_duration);
 
   int timecode_scale = 1;
-  reader.ReadInt(prefix + "timecode_scale", timecode_scale);
+  reader.ReadParam(prefix + "timecode_scale", timecode_scale);
 
   bool key_frame_fragmentation = true;
-  reader.ReadBool(prefix + "key_frame_fragmentation", key_frame_fragmentation);
+  reader.ReadParam(prefix + "key_frame_fragmentation", key_frame_fragmentation);
 
   bool frame_timecodes = true;
-  reader.ReadBool(prefix + "frame_timecodes", frame_timecodes);
+  reader.ReadParam(prefix + "frame_timecodes", frame_timecodes);
 
   bool absolute_fragment_time = true;
-  reader.ReadBool(prefix + "absolute_fragment_time", absolute_fragment_time);
+  reader.ReadParam(prefix + "absolute_fragment_time", absolute_fragment_time);
 
   bool fragment_acks = true;
-  reader.ReadBool(prefix + "fragment_acks", fragment_acks);
+  reader.ReadParam(prefix + "fragment_acks", fragment_acks);
 
   bool restart_on_error = true;
-  reader.ReadBool(prefix + "restart_on_error", restart_on_error);
+  reader.ReadParam(prefix + "restart_on_error", restart_on_error);
 
   bool recalculate_metrics = true;
-  reader.ReadBool(prefix + "recalculate_metrics", recalculate_metrics);
+  reader.ReadParam(prefix + "recalculate_metrics", recalculate_metrics);
 
   int nal_adaptation_flag_id = NAL_ADAPTATION_ANNEXB_NALS | NAL_ADAPTATION_ANNEXB_CPD_NALS;
-  reader.ReadInt(prefix + "nal_adaptation_flags", nal_adaptation_flag_id);
+  reader.ReadParam(prefix + "nal_adaptation_flags", nal_adaptation_flag_id);
   NAL_ADAPTATION_FLAGS nal_adaptation_flags =
     static_cast<NAL_ADAPTATION_FLAGS>(nal_adaptation_flag_id);
 
   int frame_rate = 24;
-  reader.ReadInt(prefix + "frame_rate", frame_rate);
+  reader.ReadParam(prefix + "frame_rate", frame_rate);
 
   int avg_bandwidth_bps = 4 * 1024 * 1024;
-  reader.ReadInt(prefix + "avg_bandwidth_bps", avg_bandwidth_bps);
+  reader.ReadParam(prefix + "avg_bandwidth_bps", avg_bandwidth_bps);
 
   int buffer_duration = 120;
-  reader.ReadInt(prefix + "buffer_duration", buffer_duration);
+  reader.ReadParam(prefix + "buffer_duration", buffer_duration);
 
   int replay_duration = 40;
-  reader.ReadInt(prefix + "replay_duration", replay_duration);
+  reader.ReadParam(prefix + "replay_duration", replay_duration);
 
   int connection_staleness = 30;
-  reader.ReadInt(prefix + "connection_staleness", connection_staleness);
+  reader.ReadParam(prefix + "connection_staleness", connection_staleness);
 
   std::string codec_id = "V_MPEG4/ISO/AVC";
-  reader.ReadStdString(prefix + "codec_id", codec_id);
+  reader.ReadParam(prefix + "codec_id", codec_id);
 
   std::string track_name = "kinesis_video";
-  reader.ReadStdString(prefix + "track_name", track_name);
+  reader.ReadParam(prefix + "track_name", track_name);
 
 
   auto stream_definition = make_unique<StreamDefinition>(
