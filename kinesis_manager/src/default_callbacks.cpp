@@ -16,6 +16,8 @@
 #include <kinesis_manager/default_callbacks.h>
 
 using namespace std;
+using namespace com::amazonaws::kinesis::video;
+
 
 namespace Aws {
 namespace Kinesis {

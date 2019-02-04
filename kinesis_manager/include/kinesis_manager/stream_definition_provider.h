@@ -17,8 +17,6 @@
 #include <kinesis-video-producer/KinesisVideoProducer.h>
 #include <kinesis_manager/common.h>
 
-using namespace com::amazonaws::kinesis::video;
-using namespace Aws::Client;
 
 namespace Aws {
 namespace Kinesis {
@@ -43,10 +41,12 @@ public:
    * @return kinesis_manager_status_t with KINESIS_MANAGER_SUCCESS on success or if no codec data
    * was provided
    */
-  virtual KinesisManagerStatus GetCodecPrivateData(const ParameterPath & prefix,
-                                                   const ParameterReaderInterface & reader,
-                                                   PBYTE * out_codec_private_data,
-                                                   uint32_t * out_codec_private_data_size) const;
+  virtual KinesisManagerStatus
+  GetCodecPrivateData(const Aws::Client::ParameterPath & prefix,
+                      const Aws::Client::ParameterReaderInterface & reader,
+                      PBYTE * out_codec_private_data,
+                      uint32_t * out_codec_private_data_size) const;
+
   /**
    * Creates a StreamDefinition by using a given Parameter Reader. Uses sensible defaults in case
    * the parameter is not configured.
@@ -59,10 +59,11 @@ public:
    * @param codec_private_data_size size in bytes of codec_private_data.
    * @return unique_ptr to StreamDefinition on success or nullptr on failure.
    */
-  virtual unique_ptr<StreamDefinition> GetStreamDefinition(const ParameterPath & prefix,
-                                                           const ParameterReaderInterface & reader,
-                                                           const PBYTE codec_private_data,
-                                                           uint32_t codec_private_data_size) const;
+  virtual unique_ptr<com::amazonaws::kinesis::video::StreamDefinition>
+  GetStreamDefinition(const Aws::Client::ParameterPath & prefix,
+                      const Aws::Client::ParameterReaderInterface & reader,
+                      const PBYTE codec_private_data,
+                      uint32_t codec_private_data_size) const;
 };
 
 }  // namespace Kinesis

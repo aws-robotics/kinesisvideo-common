@@ -29,7 +29,6 @@
 #define AWS_SESSION_TOKEN_ENV_VAR "AWS_SESSION_TOKEN"
 #define AWS_DEFAULT_CREDENTIAL_ROTATION_PERIOD_IN_SECONDS (2400)
 
-using namespace com::amazonaws::kinesis::video;
 
 namespace Aws {
 namespace Kinesis {
@@ -40,12 +39,12 @@ namespace Kinesis {
  * environment variables matching the AWS SDK.
  * @return CredentialProvider
  */
-std::unique_ptr<CredentialProvider> CreateDefaultCredentialProvider();
+std::unique_ptr<com::amazonaws::kinesis::video::CredentialProvider> CreateDefaultCredentialProvider();
 /**
  * Credentials provider which uses the AWS SDK's default credential provider chain.
  * @note You need to have called Aws::InitAPI before using this provider.
  */
-class ProducerSdkAWSCredentialsProvider : public CredentialProvider
+class ProducerSdkAWSCredentialsProvider : public com::amazonaws::kinesis::video::CredentialProvider
 {
 public:
   ProducerSdkAWSCredentialsProvider(std::shared_ptr<Auth::DefaultAWSCredentialsProviderChain>
@@ -62,7 +61,7 @@ public:
 private:
   std::shared_ptr<Auth::DefaultAWSCredentialsProviderChain> default_aws_credentials_provider_;
 
-  void updateCredentials(Credentials & producer_sdk_credentials) override
+  void updateCredentials(com::amazonaws::kinesis::video::Credentials & producer_sdk_credentials) override
   {
     Auth::AWSCredentials aws_sdk_credentials =
       default_aws_credentials_provider_->GetAWSCredentials();
@@ -77,7 +76,7 @@ private:
   }
 };
 
-class DefaultClientCallbackProvider : public ClientCallbackProvider
+class DefaultClientCallbackProvider : public com::amazonaws::kinesis::video::ClientCallbackProvider
 {
 public:
   UINT64 getCallbackCustomData() override;
@@ -85,7 +84,7 @@ public:
   static STATUS storageOverflowPressure(UINT64 custom_handle, UINT64 remaining_bytes);
 };
 
-class DefaultStreamCallbackProvider : public StreamCallbackProvider
+class DefaultStreamCallbackProvider : public com::amazonaws::kinesis::video::StreamCallbackProvider
 {
 public:
   UINT64 getCallbackCustomData() override;
