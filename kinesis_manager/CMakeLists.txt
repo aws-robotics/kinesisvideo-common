@@ -20,7 +20,9 @@ add_subdirectory(kvssdk)
 ## Library ##
 #############
 ## Declare a C++ library
-add_library(${PROJECT_NAME} SHARED src/stream_definition_provider.cpp src/kinesis_stream_manager.cpp src/default_callbacks.cpp)
+add_library(${PROJECT_NAME} SHARED src/stream_definition_provider.cpp 
+  src/kinesis_stream_manager.cpp src/default_callbacks.cpp
+  src/kinesis_video_stream_interface.cpp src/kinesis_video_producer_interface.cpp)
 set(${PROJECT_NAME}_IMPORTED_LIBRARIES producer log4cplus)
 add_dependencies(${PROJECT_NAME} KVS_SDK_IMPORT)
 
@@ -58,20 +60,38 @@ find_package(GTest QUIET)
 if(NOT GTEST_FOUND)
   message(WARNING "Could not find GTest. Not building unit tests.")
 else()
+  include_directories(/usr/include/gmock /usr/src/gmock)
+  add_library(libgmock /usr/src/gmock/src/gmock-all.cc)
+
   add_executable(test_kinesis_manager test/kinesis_manager_test.cpp)
   target_include_directories(test_kinesis_manager PRIVATE ${aws_common_INCLUDE_DIRS} ${KVSSDK_EXTERNAL_INCLUDE_DIR})
-
   target_link_libraries(test_kinesis_manager
-        ${GTEST_LIBRARIES}
-        pthread
-        ${aws_common_LIBRARIES}
-        ${PROJECT_NAME}
-        ${rclcpp_LIBRARIES}
-        ${PRODUCER_LIBRARY}
-        ${LOG_LIBRARY}
-        ${CURL_LIBRARIES}
+    ${PROJECT_NAME}
+    ${aws_common_LIBRARIES}
+    ${GTEST_LIBRARIES}
+    libgmock
+    pthread        
   )
   add_test(NAME test_kinesis_manager COMMAND test_kinesis_manager --gtest_output=xml:test_results/)
+
+  add_executable(test_stream_subscription_installer test/stream_subscription_installer_test.cpp)
+  target_include_directories(test_stream_subscription_installer PRIVATE ${aws_common_INCLUDE_DIRS} ${KVSSDK_EXTERNAL_INCLUDE_DIR})
+  target_link_libraries(test_stream_subscription_installer
+    ${PROJECT_NAME}
+    ${GTEST_LIBRARIES}
+    pthread
+  )
+  add_test(NAME test_stream_subscription_installer COMMAND test_stream_subscription_installer --gtest_output=xml:test_results/)
+
+  add_executable(test_default_callbacks test/default_callbacks_test.cpp)
+  target_include_directories(test_default_callbacks PRIVATE ${aws_common_INCLUDE_DIRS} ${KVSSDK_EXTERNAL_INCLUDE_DIR})
+  target_link_libraries(test_default_callbacks
+    ${PROJECT_NAME}
+    ${aws_common_LIBRARIES}
+    ${GTEST_LIBRARIES}
+    pthread
+  )
+  add_test(NAME test_default_callbacks COMMAND test_default_callbacks --gtest_output=xml:test_results/)
 endif()
 
 #############
