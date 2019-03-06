@@ -1,3 +1,4 @@
 #!/bin/bash
 sed -i '/pkg_check_modules.*\(GLIB\|GST\|GOBJ\)/s/^/#/g' $1/CMakeLists.txt
 sed -i '/make\s\+\(start\|kinesis\)/s/^/#/g' $1/min-install-script
+sed -i 's/https:\/\/sourceforge.net\/projects\/log4cplus\/files\/log4cplus-stable\/1.2.0\/log4cplus-1.2.0.tar.xz/https:\/\/github.com\/log4cplus\/log4cplus\/releases\/download\/REL_1_2_0\/log4cplus-1.2.0.tar.xz/g' $1/min-install-script
