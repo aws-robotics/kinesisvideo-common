@@ -98,7 +98,9 @@ STATUS DefaultStreamCallbackProvider::streamConnectionStaleHandler(UINT64 custom
 STATUS
 DefaultStreamCallbackProvider::streamErrorReportHandler(UINT64 custom_data,
                                                         STREAM_HANDLE stream_handle,
-                                                        UINT64 errored_timecode, STATUS status_code)
+                                                        UPLOAD_HANDLE upload_handle,
+                                                        UINT64 errored_timecode,
+                                                        STATUS status_code)
 {
   AWS_LOGSTREAM_ERROR(__func__, "Reporting stream error. Errored timecode: "
                                   << errored_timecode << " Status: " << status_code);

@@ -205,13 +205,13 @@ static bool are_streams_equivalent(unique_ptr<StreamDefinition> stream1,
   /**
    * Compare complex structures first
    */
-  if (stream1_info.streamCaps.codecPrivateDataSize !=
-      stream2_info.streamCaps.codecPrivateDataSize) {
+  if (stream1_info.streamCaps.trackInfoList[0].codecPrivateDataSize !=
+      stream2_info.streamCaps.trackInfoList[0].codecPrivateDataSize) {
     return false;
   } else {
-    result &= (0 == memcmp((void *)&(stream1_info.streamCaps.codecPrivateData),
-                           (void *)&(stream2_info.streamCaps.codecPrivateData),
-                           stream1_info.streamCaps.codecPrivateDataSize));
+    result &= (0 == memcmp((void *)&(stream1_info.streamCaps.trackInfoList[0].codecPrivateData),
+                           (void *)&(stream2_info.streamCaps.trackInfoList[0].codecPrivateData),
+                           stream1_info.streamCaps.trackInfoList[0].codecPrivateDataSize));
   }
   if (stream1_info.tagCount != stream2_info.tagCount) {
     return false;
@@ -227,8 +227,8 @@ static bool are_streams_equivalent(unique_ptr<StreamDefinition> stream1,
   /**
    * Zero out pointers contained within the structs and use memcmp.
    */
-  stream2_info.streamCaps.codecPrivateData = nullptr;
-  stream1_info.streamCaps.codecPrivateData = nullptr;
+  stream1_info.streamCaps.trackInfoList = nullptr;
+  stream2_info.streamCaps.trackInfoList = nullptr;
   stream1_info.tags = nullptr;
   stream2_info.tags = nullptr;
   result &= (0 == memcmp((void *)&(stream1_info), (void *)&(stream2_info), sizeof(stream1_info)));
