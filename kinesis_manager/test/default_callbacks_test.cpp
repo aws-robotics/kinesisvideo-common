@@ -35,6 +35,7 @@ TEST(ClientCallbackProviderSuite, defaultStreamCallbackProviderTest)
   DefaultStreamCallbackProvider test_subject;
   UINT64 custom_data;
   STREAM_HANDLE stream_handle;
+  UPLOAD_HANDLE upload_handle;
   UINT64 last_buffering_ack;
   UINT64 errored_timecode;
   STATUS status_code;
@@ -43,7 +44,7 @@ TEST(ClientCallbackProviderSuite, defaultStreamCallbackProviderTest)
   EXPECT_EQ(STATUS_SUCCESS,
     test_subject.getStreamConnectionStaleCallback()(custom_data, stream_handle, last_buffering_ack));
   EXPECT_EQ(STATUS_SUCCESS,
-    test_subject.getStreamErrorReportCallback()(custom_data, stream_handle, errored_timecode, status_code));
+    test_subject.getStreamErrorReportCallback()(custom_data, stream_handle, upload_handle, errored_timecode, status_code));
   EXPECT_EQ(STATUS_SUCCESS,
     test_subject.getDroppedFrameReportCallback()(custom_data, stream_handle, dropped_frame_timecode));
 }

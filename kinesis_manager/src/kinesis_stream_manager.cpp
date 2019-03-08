@@ -256,11 +256,12 @@ KinesisManagerStatus KinesisStreamManager::InitializeVideoStream(
 
   if (stream) {
     video_streams_.insert({stream_name, stream});
-    if (0 < stream_info.streamCaps.codecPrivateDataSize) {
+    if (0 < stream_info.streamCaps.trackInfoList[0].codecPrivateDataSize) {
       std::vector<uint8_t> codec_private_data;
       codec_private_data.assign(
-        stream_info.streamCaps.codecPrivateData,
-        stream_info.streamCaps.codecPrivateData + stream_info.streamCaps.codecPrivateDataSize);
+        stream_info.streamCaps.trackInfoList[0].codecPrivateData,
+        stream_info.streamCaps.trackInfoList[0].codecPrivateData
+        + stream_info.streamCaps.trackInfoList[0].codecPrivateDataSize);
       video_streams_codec_data_.insert({stream_name, codec_private_data});
     }
     return KINESIS_MANAGER_STATUS_SUCCESS;

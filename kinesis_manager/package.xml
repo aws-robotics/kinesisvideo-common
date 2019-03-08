@@ -18,6 +18,7 @@
   <depend>boost</depend>
   <depend>curl</depend>
   <depend>libssl-dev</depend>
+  <depend>log4cplus</depend>
   <test_depend>gtest</test_depend>
 
   <export>
