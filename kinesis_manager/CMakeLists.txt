@@ -23,7 +23,7 @@ add_subdirectory(kvssdk)
 add_library(${PROJECT_NAME} SHARED src/stream_definition_provider.cpp 
   src/kinesis_stream_manager.cpp src/default_callbacks.cpp
   src/kinesis_video_stream_interface.cpp src/kinesis_video_producer_interface.cpp)
-set(${PROJECT_NAME}_IMPORTED_LIBRARIES producer)
+set(${PROJECT_NAME}_IMPORTED_LIBRARIES producer log4cplus)
 add_dependencies(${PROJECT_NAME} KVS_SDK_IMPORT)
 
 foreach(_imported_lib ${${PROJECT_NAME}_IMPORTED_LIBRARIES})
@@ -43,7 +43,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${aws_common_INCLUDE_DIRS} ${
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_link_libraries(${PROJECT_NAME} ${AWSSDK_LIBS_TO_LINK} ${${PROJECT_NAME}_IMPORTED_LIBRARIES} log4cplus)
+target_link_libraries(${PROJECT_NAME} ${AWSSDK_LIBS_TO_LINK} ${${PROJECT_NAME}_IMPORTED_LIBRARIES})
 
 #############
 ## Tests ##

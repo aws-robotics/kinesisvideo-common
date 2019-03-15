@@ -96,8 +96,7 @@ private:
   static STATUS streamConnectionStaleHandler(UINT64 custom_data, STREAM_HANDLE stream_handle,
                                              UINT64 last_buffering_ack);
   static STATUS streamErrorReportHandler(UINT64 custom_data, STREAM_HANDLE stream_handle,
-                                         UPLOAD_HANDLE upload_handle, UINT64 errored_timecode,
-                                         STATUS status_code);
+                                         UINT64 errored_timecode, STATUS status_code);
   static STATUS droppedFrameReportHandler(UINT64 custom_data, STREAM_HANDLE stream_handle,
                                           UINT64 dropped_frame_timecode);
 };
