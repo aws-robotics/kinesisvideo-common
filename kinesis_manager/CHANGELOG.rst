@@ -2,8 +2,8 @@
 Changelog for package kinesis_manager
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2019-03-19)
+------------------
 * update kvs producer sdk to v1.7.8
 * Improve unit tests coverage
   * Add KinesisVideoProducerInterface and
