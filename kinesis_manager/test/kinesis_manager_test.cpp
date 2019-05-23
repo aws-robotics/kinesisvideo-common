@@ -12,6 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+
 #include <aws/core/Aws.h>
 #include <aws_common/sdk_utils/aws_error.h>
 #include <gtest/gtest.h>

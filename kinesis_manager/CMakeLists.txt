@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(kinesis_manager)
 set(KINESIS_MANAGER_VERSION 0.1.0)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++14 ")
+
+set(CMAKE_CXX_STANDARD 14)
 
 find_package(aws_common REQUIRED)
 if(AWSSDK_FOUND)
@@ -16,9 +17,11 @@ find_package(CURL REQUIRED)
 include(FindKVSSDK.cmake)
 add_subdirectory(kvssdk)
 
+
 #############
 ## Library ##
 #############
+
 ## Declare a C++ library
 add_library(${PROJECT_NAME} SHARED src/stream_definition_provider.cpp 
   src/kinesis_stream_manager.cpp src/default_callbacks.cpp
@@ -45,6 +48,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(${PROJECT_NAME} ${AWSSDK_LIBS_TO_LINK} ${${PROJECT_NAME}_IMPORTED_LIBRARIES} log4cplus)
 
+
 #############
 ## Tests ##
 #############
@@ -53,46 +57,52 @@ enable_testing()
 
 # Build tests which perform API calls to AWS and require user configuration set up
 if(BUILD_AWS_TESTING)
-    add_definitions(-DBUILD_AWS_TESTING)
+  add_definitions(-DBUILD_AWS_TESTING)
 endif()
 
-find_package(GTest QUIET)
-if(NOT GTEST_FOUND)
-  message(WARNING "Could not find GTest. Not building unit tests.")
-else()
-  include_directories(/usr/include/gmock /usr/src/gmock)
-  add_library(libgmock /usr/src/gmock/src/gmock-all.cc)
+find_common_test_packages()
 
-  add_executable(test_kinesis_manager test/kinesis_manager_test.cpp)
-  target_include_directories(test_kinesis_manager PRIVATE ${aws_common_INCLUDE_DIRS} ${KVSSDK_EXTERNAL_INCLUDE_DIR})
-  target_link_libraries(test_kinesis_manager
-    ${PROJECT_NAME}
-    ${aws_common_LIBRARIES}
-    ${GTEST_LIBRARIES}
-    libgmock
-    pthread        
-  )
-  add_test(NAME test_kinesis_manager COMMAND test_kinesis_manager --gtest_output=xml:test_results/)
+add_common_gtest(test_kinesis_manager
+  test/kinesis_manager_test.cpp
+)
+target_include_directories(test_kinesis_manager PRIVATE
+  ${aws_common_INCLUDE_DIRS}
+  ${KVSSDK_EXTERNAL_INCLUDE_DIR}
+)
+target_link_libraries(test_kinesis_manager
+  ${PROJECT_NAME}
+  ${aws_common_LIBRARIES}
+  ${GMOCK_LIBRARY}
+  pthread
+)
 
-  add_executable(test_stream_subscription_installer test/stream_subscription_installer_test.cpp)
-  target_include_directories(test_stream_subscription_installer PRIVATE ${aws_common_INCLUDE_DIRS} ${KVSSDK_EXTERNAL_INCLUDE_DIR})
-  target_link_libraries(test_stream_subscription_installer
-    ${PROJECT_NAME}
-    ${GTEST_LIBRARIES}
-    pthread
-  )
-  add_test(NAME test_stream_subscription_installer COMMAND test_stream_subscription_installer --gtest_output=xml:test_results/)
+add_common_gtest(test_stream_subscription_installer
+  test/stream_subscription_installer_test.cpp
+)
+target_include_directories(test_stream_subscription_installer PRIVATE
+  ${aws_common_INCLUDE_DIRS}
+  ${KVSSDK_EXTERNAL_INCLUDE_DIR}
+)
+target_link_libraries(test_stream_subscription_installer
+  ${PROJECT_NAME}
+  ${GMOCK_LIBRARY}
+  pthread
+)
 
-  add_executable(test_default_callbacks test/default_callbacks_test.cpp)
-  target_include_directories(test_default_callbacks PRIVATE ${aws_common_INCLUDE_DIRS} ${KVSSDK_EXTERNAL_INCLUDE_DIR})
-  target_link_libraries(test_default_callbacks
-    ${PROJECT_NAME}
-    ${aws_common_LIBRARIES}
-    ${GTEST_LIBRARIES}
-    pthread
-  )
-  add_test(NAME test_default_callbacks COMMAND test_default_callbacks --gtest_output=xml:test_results/)
-endif()
+add_common_gtest(test_default_callbacks
+  test/default_callbacks_test.cpp
+)
+target_include_directories(test_default_callbacks PRIVATE
+  ${aws_common_INCLUDE_DIRS}
+  ${KVSSDK_EXTERNAL_INCLUDE_DIR}
+)
+target_link_libraries(test_default_callbacks
+  ${PROJECT_NAME}
+  ${aws_common_LIBRARIES}
+  ${GMOCK_LIBRARY}
+  pthread
+)
+
 
 #############
 ## Install ##
