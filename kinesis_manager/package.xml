@@ -14,7 +14,7 @@
   <buildtool_depend>cmake</buildtool_depend>
   <buildtool_depend>pkg-config</buildtool_depend>
 
-  <depend version_lt='2.0.0'>aws_common</depend>
+  <depend version_lt='3.0.0'>aws_common</depend>
   <depend>boost</depend>
   <depend>curl</depend>
   <depend>libssl-dev</depend>
