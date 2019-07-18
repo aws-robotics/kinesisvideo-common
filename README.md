@@ -16,14 +16,13 @@ The source code is released under an [Apache 2.0].
 - Melodic
 
 ### Build status
+* Travis CI:
+    * "master" branch [![Build Status](https://travis-ci.org/aws-robotics/kinesisvideo-common.svg?branch=master)](https://travis-ci.org/aws-robotics/kinesisvideo-common/branches)
+    * "release-latest" branch [![Build Status](https://travis-ci.org/aws-robotics/kinesisvideo-common.svg?branch=release-latest)](https://travis-ci.org/aws-robotics/kinesisvideo-common/branches)
+* ROS build farm:
+    * ROS Kinetic @ u16.04 Xenial [![Build Status](http://build.ros.org/job/Kbin_uX64__kinesis_manager__ubuntu_xenial_amd64__binary/badge/icon)](http://build.ros.org/job/Kbin_uX64__kinesis_manager__ubuntu_xenial_amd64__binary)
+    * ROS Melodic @ u18.04 Bionic [![Build Status](http://build.ros.org/job/Mbin_uB64__kinesis_manager__ubuntu_bionic_amd64__binary/badge/icon)](http://build.ros.org/job/Mbin_uB64__kinesis_manager__ubuntu_bionic_amd64__binary/)
 
-* Travis CI: [![Build Status](https://travis-ci.org/aws-robotics/kinesisvideo-common.svg?branch=master)](https://travis-ci.org/aws-robotics/kinesisvideo-common)
- * ROS build farm:
-   * ROS Kinetic @ u16.04 Xenial [![Build Status](http://build.ros.org/job/Kbin_uX64__kinesis_manager__ubuntu_xenial_amd64__binary/badge/icon)](http://build.ros.org/job/Kbin_uX64__kinesis_manager__ubuntu_xenial_amd64__binary)
-   * ROS Melodic @ u18.04 Bionic [![Build Status](http://build.ros.org/job/Mbin_uB64__kinesis_manager__ubuntu_bionic_amd64__binary/badge/icon)](http://build.ros.org/job/Mbin_uB64__kinesis_manager__ubuntu_bionic_amd64__binary/)
-
-[Amazon Web Services (AWS)]: https://aws.amazon.com/
-[Apache 2.0]: https://aws.amazon.com/apache-2-0/
 
 ## Installation
 
@@ -63,3 +62,7 @@ _Note: If building the master branch instead of a release branch you may need to
 - Configure ROS library Path
 
         source ~/ros-workspace/install/setup.bash
+
+
+[Amazon Web Services (AWS)]: https://aws.amazon.com/
+[Apache 2.0]: https://aws.amazon.com/apache-2-0/
