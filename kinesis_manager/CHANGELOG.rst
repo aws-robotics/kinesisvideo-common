@@ -2,8 +2,8 @@
 Changelog for package kinesis_manager
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.1 (2019-07-26)
+------------------
 * Merge pull request `#32 <https://github.com/aws-robotics/kinesisvideo-common/issues/32>`_ from aws-robotics/bump-version-2-0-1
   Bump version
 * Bump version
