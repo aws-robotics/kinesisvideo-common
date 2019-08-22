@@ -198,8 +198,12 @@ KinesisManagerStatus KinesisStreamManager::InitializeVideoProducer(
   if (video_producer_) {
     return KINESIS_MANAGER_STATUS_VIDEO_PRODUCER_ALREADY_INITIALIZED;
   }
-  if (region.empty() || !device_info_provider || !client_callback_provider ||
-      !stream_callback_provider || !credential_provider) {
+  if (region.empty()) {
+    AWS_LOG_ERROR(__func__,
+                  "Region not provided. Check that the config file is correct and was loaded properly.");
+    return KINESIS_MANAGER_STATUS_INVALID_INPUT;
+  }
+  if (!device_info_provider || !client_callback_provider || !stream_callback_provider || !credential_provider) {
     return KINESIS_MANAGER_STATUS_INVALID_INPUT;
   }
   video_producer_ = video_producer_factory(region, std::move(device_info_provider), std::move(client_callback_provider),
