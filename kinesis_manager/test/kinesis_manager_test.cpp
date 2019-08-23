@@ -965,7 +965,17 @@ TEST(KinesisStreamManagerSuite, videoInitializationTest)
   string test_prefix = "some/test/prefix";
   Aws::Kinesis::KinesisStreamManager stream_manager;
 
-  KinesisManagerStatus status = stream_manager.InitializeVideoProducer("us-west-2");
+  /* Empty region */
+  KinesisManagerStatus status = stream_manager.InitializeVideoProducer("");
+  ASSERT_TRUE(KINESIS_MANAGER_STATUS_FAILED(status) &&
+              KINESIS_MANAGER_STATUS_INVALID_INPUT == status);
+
+  /* Non empty region, invalid callback/info providers */
+  status = stream_manager.InitializeVideoProducer("us-west-2", nullptr, nullptr, nullptr, nullptr);
+  ASSERT_TRUE(KINESIS_MANAGER_STATUS_FAILED(status) &&
+              KINESIS_MANAGER_STATUS_INVALID_INPUT == status);
+
+  status = stream_manager.InitializeVideoProducer("us-west-2");
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_SUCCEEDED(status));
   ASSERT_TRUE(stream_manager.get_video_producer());
 
