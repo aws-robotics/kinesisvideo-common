@@ -54,17 +54,17 @@ target_link_libraries(${PROJECT_NAME} ${AWSSDK_LIBS_TO_LINK} ${${PROJECT_NAME}_I
 #############
 
 enable_testing()
-if($ENV{ROS_VERSION} STREQUAL "1" OR ($ENV{ROS_VERSION} STREQUAL "2" AND BUILD_TESTING))
-  # Build tests which perform API calls to AWS and require user configuration set up
-  if(BUILD_AWS_TESTING)
-    add_definitions(-DBUILD_AWS_TESTING)
-  endif()
+# Build tests which perform API calls to AWS and require user configuration set up
+if(BUILD_AWS_TESTING)
+  add_definitions(-DBUILD_AWS_TESTING)
+endif()
 
-  find_common_test_packages()
+find_common_test_packages()
 
-  add_common_gtest(test_kinesis_manager
-    test/kinesis_manager_test.cpp
-  )
+add_common_gtest(test_kinesis_manager
+  test/kinesis_manager_test.cpp
+)
+if(TARGET test_kinesis_manager)
   target_include_directories(test_kinesis_manager PRIVATE
     ${aws_common_INCLUDE_DIRS}
     ${KVSSDK_EXTERNAL_INCLUDE_DIR}
@@ -75,10 +75,12 @@ if($ENV{ROS_VERSION} STREQUAL "1" OR ($ENV{ROS_VERSION} STREQUAL "2" AND BUILD_T
     ${GMOCK_LIBRARY}
     pthread
   )
+endif()
 
-  add_common_gtest(test_stream_subscription_installer
-    test/stream_subscription_installer_test.cpp
-  )
+add_common_gtest(test_stream_subscription_installer
+  test/stream_subscription_installer_test.cpp
+)
+if(TARGET test_stream_subscription_installer)
   target_include_directories(test_stream_subscription_installer PRIVATE
     ${aws_common_INCLUDE_DIRS}
     ${KVSSDK_EXTERNAL_INCLUDE_DIR}
@@ -88,10 +90,12 @@ if($ENV{ROS_VERSION} STREQUAL "1" OR ($ENV{ROS_VERSION} STREQUAL "2" AND BUILD_T
     ${GMOCK_LIBRARY}
     pthread
   )
+endif()
 
-  add_common_gtest(test_default_callbacks
-    test/default_callbacks_test.cpp
-  )
+add_common_gtest(test_default_callbacks
+  test/default_callbacks_test.cpp
+)
+if(TARGET test_default_callbacks)
   target_include_directories(test_default_callbacks PRIVATE
     ${aws_common_INCLUDE_DIRS}
     ${KVSSDK_EXTERNAL_INCLUDE_DIR}
@@ -103,7 +107,6 @@ if($ENV{ROS_VERSION} STREQUAL "1" OR ($ENV{ROS_VERSION} STREQUAL "2" AND BUILD_T
     pthread
   )
 endif()
-
 
 #############
 ## Install ##
