@@ -53,7 +53,8 @@ target_link_libraries(${PROJECT_NAME} ${AWSSDK_LIBS_TO_LINK} ${${PROJECT_NAME}_I
 ## Tests ##
 #############
 
-if(BUILD_TESTING OR CATKIN_ENABLE_TESTING)
+enable_testing()
+if($ENV{ROS_VERSION} STREQUAL "1" OR ($ENV{ROS_VERSION} STREQUAL "2" AND BUILD_TESTING))
   # Build tests which perform API calls to AWS and require user configuration set up
   if(BUILD_AWS_TESTING)
     add_definitions(-DBUILD_AWS_TESTING)
