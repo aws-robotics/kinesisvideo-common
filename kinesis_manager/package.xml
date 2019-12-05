@@ -15,7 +15,6 @@
   <buildtool_depend>pkg-config</buildtool_depend>
 
   <depend>aws_common</depend>
-  <depend>boost</depend>
   <depend>curl</depend>
   <depend>libssl-dev</depend>
   <depend>log4cplus</depend>

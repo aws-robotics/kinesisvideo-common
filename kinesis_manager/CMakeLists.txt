@@ -23,7 +23,7 @@ add_subdirectory(kvssdk)
 #############
 
 ## Declare a C++ library
-add_library(${PROJECT_NAME} SHARED src/stream_definition_provider.cpp 
+add_library(${PROJECT_NAME} SHARED src/stream_definition_provider.cpp
   src/kinesis_stream_manager.cpp src/default_callbacks.cpp
   src/kinesis_video_stream_interface.cpp src/kinesis_video_producer_interface.cpp)
 set(${PROJECT_NAME}_IMPORTED_LIBRARIES producer)
@@ -52,6 +52,7 @@ target_link_libraries(${PROJECT_NAME} ${AWSSDK_LIBS_TO_LINK} ${${PROJECT_NAME}_I
 #############
 ## Tests ##
 #############
+if (BUILD_TESTING)
 
 enable_testing()
 # Build tests which perform API calls to AWS and require user configuration set up
@@ -107,6 +108,8 @@ if(TARGET test_default_callbacks)
     pthread
   )
 endif()
+
+endif(BUILD_TESTING)
 
 #############
 ## Install ##

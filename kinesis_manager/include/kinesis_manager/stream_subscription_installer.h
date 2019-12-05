@@ -16,7 +16,6 @@
 #include <aws_common/sdk_utils/logging/aws_log_system.h>
 #include <kinesis_manager/common.h>
 
-#include <boost/function.hpp>
 #include <map>
 
 namespace Aws {
