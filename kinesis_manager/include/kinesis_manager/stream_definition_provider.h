@@ -59,7 +59,7 @@ public:
    * @param codec_private_data_size size in bytes of codec_private_data.
    * @return unique_ptr to StreamDefinition on success or nullptr on failure.
    */
-  virtual unique_ptr<com::amazonaws::kinesis::video::StreamDefinition>
+  virtual std::unique_ptr<com::amazonaws::kinesis::video::StreamDefinition>
   GetStreamDefinition(const Aws::Client::ParameterPath & prefix,
                       const Aws::Client::ParameterReaderInterface & reader,
                       const PBYTE codec_private_data,
