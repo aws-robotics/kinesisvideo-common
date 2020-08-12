@@ -26,6 +26,9 @@ using namespace Aws::Client;
 namespace Aws {
 namespace Kinesis {
 
+using namespace std;
+using namespace std::chrono;
+
 KinesisManagerStatus StreamDefinitionProvider::GetCodecPrivateData(
   const ParameterPath & prefix, const ParameterReaderInterface & reader,
   PBYTE * out_codec_private_data, uint32_t * out_codec_private_data_size) const

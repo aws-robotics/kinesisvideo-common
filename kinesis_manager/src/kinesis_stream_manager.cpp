@@ -30,6 +30,8 @@ using namespace Aws::Utils::Logging;
 namespace Aws {
 namespace Kinesis {
 
+using namespace std;
+
 KinesisManagerStatus KinesisStreamManagerInterface::KinesisVideoStreamSetup(
   const uint16_t stream_idx, const PBYTE codec_private_data, const uint32_t codec_private_data_size,
   std::string * stream_name)

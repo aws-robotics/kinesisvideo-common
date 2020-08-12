@@ -19,7 +19,8 @@ ExternalProject_Add(KVS_SDK_IMPORT
   URL https://github.com/awslabs/amazon-kinesis-video-streams-producer-sdk-cpp/archive/${KVSSDK_VERSION}.tar.gz
   URL_MD5 ${KVSSDK_MD5}
   BINARY_DIR ${EXTERNAL_INSTALL_LOCATION}/src/kinesis-video-native-build
-  PATCH_COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/apply-kvs-patch ${CMAKE_CURRENT_SOURCE_DIR}/install-kvs ${EXTERNAL_INSTALL_LOCATION}
+  PATCH_COMMAND patch -p1 -d . < ${CMAKE_CURRENT_SOURCE_DIR}/0001-remove-using-namespace-from-headers.patch
+      && cp ${CMAKE_CURRENT_SOURCE_DIR}/apply-kvs-patch ${CMAKE_CURRENT_SOURCE_DIR}/install-kvs ${EXTERNAL_INSTALL_LOCATION}
       && chmod +x ${EXTERNAL_INSTALL_LOCATION}/apply-kvs-patch ${EXTERNAL_INSTALL_LOCATION}/install-kvs
       && ${EXTERNAL_INSTALL_LOCATION}/apply-kvs-patch ${EXTERNAL_INSTALL_LOCATION}/src/kinesis-video-native-build
   CONFIGURE_COMMAND ""
