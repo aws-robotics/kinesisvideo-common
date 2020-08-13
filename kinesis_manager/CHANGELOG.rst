@@ -2,8 +2,8 @@
 Changelog for package kinesis_manager
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.3 (2020-08-12)
+------------------
 * Bump patch version to 2.0.3 for release (`#40 <https://github.com/aws-robotics/kinesisvideo-common/issues/40>`_)
 * Patch the kvs sdk to not 'using namespace std' in its headers. (`#39 <https://github.com/aws-robotics/kinesisvideo-common/issues/39>`_)
   * Patch the kvs sdk to not 'using namespace std' in its headers.
