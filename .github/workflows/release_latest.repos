@@ -1,0 +1,5 @@
+repositories:
+  kinesisvideo-common:
+    type: git
+    url: https://github.com/aws-robotics/kinesisvideo-common
+    version: release-latest
