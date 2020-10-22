@@ -32,6 +32,7 @@ jobs:
           extra_cmake_args: ""
     container:
       image: rostooling/setup-ros-docker:ubuntu-${{ matrix.ubuntu_distro }}-ros-${{ matrix.ros_distro }}-ros-base-latest
+    env:
       # Needed for the CMakeLists.txt setup
       ROS_DISTRO: ${{ matrix.ros_distro }}
       ROS_VERSION: ${{ matrix.ros_version }}
