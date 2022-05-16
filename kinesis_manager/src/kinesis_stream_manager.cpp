@@ -318,6 +318,10 @@ void KinesisStreamManager::FreeStream(std::string stream_name)
     }
     video_producer_->FreeStream(video_streams_.at(stream_name));
     video_streams_.erase(stream_name);
+    // Erase stream's codec data
+    if (video_streams_codec_data_.count(stream_name) > 0) {
+      video_streams_codec_data_.erase(stream_name);
+    }
   }
 }
 
